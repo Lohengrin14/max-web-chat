@@ -1,7 +1,11 @@
 /**
- * Индикатор статуса исходящего сообщения, как в привычных мессенджерах:
- * часы — ещё не отправлено, ✓ — отправлено, ✓✓ — доставлено, синие ✓✓ — прочитано,
- * красный значок — ошибка. Текстовое описание дублируется для скринридеров и в title.
+ * Индикатор статуса исходящего сообщения в логике MAX:
+ * часы — ещё не отправлено, ✓ — отправлено/доставлено, ✓✓ — прочитано,
+ * красный значок — ошибка.
+ *
+ * Две галочки означают только «прочитано»: MAX присылает `delivered` почти сразу после
+ * отправки, и если рисовать его двумя галочками, сообщение выглядит прочитанным, хотя
+ * получатель его ещё не открывал. Точный статус — в title и в тексте для скринридеров.
  */
 import type { MessageStatus } from '@/domain/models';
 import { AlertIcon, CheckIcon, ClockIcon, DoubleCheckIcon } from './icons';
@@ -36,8 +40,8 @@ function renderIcon(status: MessageStatus) {
     case 'queued':
       return <ClockIcon width={14} height={14} />;
     case 'sent':
-      return <CheckIcon width={15} height={15} />;
     case 'delivered':
+      return <CheckIcon width={15} height={15} />;
     case 'read':
       return <DoubleCheckIcon width={18} height={15} />;
     case 'failed':

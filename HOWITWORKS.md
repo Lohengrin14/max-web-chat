@@ -429,7 +429,7 @@ sequenceDiagram
     API-->>Q: outgoingAPIMessageReceived (эхо)
     Q-->>M: applyEvent(message, status sent)    [✓]
     API-->>Q: outgoingMessageStatus delivered
-    Q-->>M: applyEvent(status delivered)        [✓✓]
+    Q-->>M: applyEvent(status delivered)        [✓ доставлено]
     API-->>Q: outgoingMessageStatus read
     Q-->>M: applyEvent(status read)             [✓✓ прочитано]
 ```
@@ -452,9 +452,11 @@ sequenceDiagram
 | `pending` | создан локально | часы |
 | `queued` | SendMessage вернул `idMessage` — сообщение в очереди GREEN-API, но ещё не отправлено | часы |
 | `sent` | эхо `outgoingAPIMessageReceived` | ✓ |
-| `delivered` | `outgoingMessageStatus: delivered` | ✓✓ |
-| `read` | `outgoingMessageStatus: read` | ✓✓ (цвет статуса) |
+| `delivered` | `outgoingMessageStatus: delivered` | ✓ (подсказка «Доставлено») |
+| `read` | `outgoingMessageStatus: read` | ✓✓ |
 | `failed` | ошибка запроса или `failed` / `noAccount` / `notInGroup` | красный значок + текст под пузырём |
+
+**Почему две галочки — только «прочитано».** Так принято в MAX. Кроме того, на реальном инстансе `delivered` приходит в ту же секунду, что и отправка, а `read` — отдельным уведомлением, когда получатель действительно открыл чат. Если рисовать `delivered` двумя галочками, сообщение выглядит прочитанным сразу после отправки. Поэтому `sent` и `delivered` — одна галочка (различаются подсказкой), `read` — две.
 
 **Почему ответ 200 от SendMessage — это ещё не «отправлено».** По документации сообщение лишь ставится в очередь. Если отправка не удастся (например, в сервисный чат), GREEN-API всё равно вернёт 200 и `idMessage`, а позже пришлёт `outgoingMessageStatus: failed`. Поэтому после ответа статус `queued`, а не `sent`.
 
@@ -557,7 +559,7 @@ read → failed                  ⇒ остаётся read (доставка у�
 |---|---|---|
 | 350 мс | ответ `sendText` с id | `pending` → `queued` |
 | +300 мс | эхо исходящего (`sent`) | upsert без дубля, ✓ |
-| +1200 мс | `delivered` | ✓✓ |
+| +1200 мс | `delivered` | ✓ «Доставлено» |
 | +2400 мс | `read` | ✓✓ «Прочитано» |
 | +3500 мс | входящий ответ с именем контакта | имя заменяет номер в заголовке |
 
@@ -622,7 +624,7 @@ read → failed                  ⇒ остаётся read (доставка у�
 12. chatState          confirm(local-… → A) → [часы: queued]
 13. HttpPollingSource  receive: outgoingAPIMessageReceived A → mapper → message(out, sent)
 14. chatState          upsert A → [✓]  → DELETE deleteNotification
-15. HttpPollingSource  receive: outgoingMessageStatus A delivered → [✓✓] → DELETE
+15. HttpPollingSource  receive: outgoingMessageStatus A delivered → [✓ доставлено] → DELETE
 16. Телефон            получатель читает → status read → [✓✓ прочитано] → DELETE
 17. Телефон            получатель отвечает «Привет!»
 18. HttpPollingSource  receive: incomingMessageReceived, chatId "10000000",
