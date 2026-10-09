@@ -44,8 +44,9 @@
   --attention-fade: #ffcc0029;
 
   /* Фон чата (тема «space») */
-  --chat-bg-1: #99d5d7;
-  --chat-bg-2: #80bcff;
+  /* Сверху светлее, книзу темнее и насыщеннее синим. */
+  --chat-bg-1: #7fc6e3;
+  --chat-bg-2: #5c9df0;
   --chat-pattern: #007aff4d;
   --capsule: #0f8ec285;
   --on-capsule: #ffffff;
@@ -481,7 +482,7 @@ textarea {
   display: grid;
   place-items: center;
   padding: 24px 16px;
-  background: linear-gradient(160deg, var(--chat-bg-1), var(--chat-bg-2));
+  background: linear-gradient(180deg, var(--chat-bg-1), var(--chat-bg-2));
   isolation: isolate;
 }
 
@@ -928,7 +929,7 @@ textarea {
   min-width: 0;
   min-height: 0;
   display: flex;
-  background: linear-gradient(160deg, var(--chat-bg-1), var(--chat-bg-2));
+  background: linear-gradient(180deg, var(--chat-bg-1), var(--chat-bg-2));
   isolation: isolate;
 }
 
