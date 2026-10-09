@@ -38,7 +38,7 @@ export function StatusHint({ instanceId }: { instanceId: string }) {
         <a href={WEBHOOKS_DOCS_URL} target="_blank" rel="noopener noreferrer">
           вебхуки
         </a>{' '}
-        в настройках инстанса.
+        в настройках инстанса, а после — перезагрузить страницу.
       </p>
       <a className="status-hint__action" href={instanceConsoleUrl(instanceId)} target="_blank" rel="noopener noreferrer">
         Профиль
