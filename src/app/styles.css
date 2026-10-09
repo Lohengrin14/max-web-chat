@@ -987,10 +987,7 @@ textarea {
 
 .chat__back {
   margin-left: -8px;
-  color: var(--icon-tertiary);
-}
-
-.btn.chat__back:hover:not(:disabled) {
+  /* Цвет постоянный; при наведении меняется только фон (общее правило .btn--icon:hover). */
   color: var(--icon-secondary);
 }
 
