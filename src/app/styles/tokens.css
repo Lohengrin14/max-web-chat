@@ -3,8 +3,8 @@
  *
  * Значения токенов — палитра, радиусы, типографика и размеры колонок — сверены с
  * CSS-переменными web.max.ru. Все цвета заданы переменными в :root, тёмная тема
- * переопределяет только их (prefers-color-scheme). Смена темы — правка этого файла,
- * без изменений в компонентах. Фирменную графику MAX (логотип, узор обоев) не
+ * (data-theme="dark" на <html>) переопределяет только их. Смена палитры — правка этого
+ * файла, без изменений в компонентах. Фирменную графику MAX (логотип, узор обоев) не
  * используем: узор фона чата нарисован свой.
  *
  * Стили компонентов лежат рядом с компонентами и импортируются ими самими.
@@ -98,54 +98,53 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-primary: #17181c;
-    --bg-surface: #0f0f12;
-    --bg-secondary: #25262d;
-    --bg-card-hover: #32343d;
-    --bg-card-pressed: #1f2026;
-    --bg-card-selected: #2c2d37;
-    --input-bg: #ffffff17;
-    --divider: #ffffff0f;
-    --divider-strong: #ffffff1f;
+/* Тёмная тема. Атрибут ставит скрипт в index.html до первой отрисовки (см. app/theme.ts). */
+:root[data-theme='dark'] {
+  --bg-primary: #17181c;
+  --bg-surface: #0f0f12;
+  --bg-secondary: #25262d;
+  --bg-card-hover: #32343d;
+  --bg-card-pressed: #1f2026;
+  --bg-card-selected: #2c2d37;
+  --input-bg: #ffffff17;
+  --divider: #ffffff0f;
+  --divider-strong: #ffffff1f;
 
-    --text-primary: #ffffff;
-    --text-secondary: #ffffffcc;
-    --text-tertiary: #ffffffa3;
-    --icon-secondary: #ffffffad;
-    --icon-tertiary: #ffffff85;
-    --ghost-hover: #e7e7e70a;
-    --ghost-pressed: #e7e7e714;
+  --text-primary: #ffffff;
+  --text-secondary: #ffffffcc;
+  --text-tertiary: #ffffffa3;
+  --icon-secondary: #ffffffad;
+  --icon-tertiary: #ffffff85;
+  --ghost-hover: #e7e7e70a;
+  --ghost-pressed: #e7e7e714;
 
-    --negative: #ce4257;
-    --negative-fade: #ce425729;
-    --attention-text: #ffd60a;
-    --attention-fade: #ffd60a1f;
+  --negative: #ce4257;
+  --negative-fade: #ce425729;
+  --attention-text: #ffd60a;
+  --attention-fade: #ffd60a1f;
 
-    --chat-bg-1: #141414;
-    --chat-bg-2: #141414;
-    --chat-pattern: #505bc74d;
-    --capsule: #282c42b2;
+  --chat-bg-1: #141414;
+  --chat-bg-2: #141414;
+  --chat-pattern: #505bc74d;
+  --capsule: #282c42b2;
 
-    --bubble-in-1: #3b3f5e;
-    --bubble-in-2: #373a4e;
-    --bubble-in-3: #32343d;
-    --bubble-in-text: #ffffff;
-    --bubble-in-time: #ffffffa3;
-    --bubble-in-author: #ffffff;
-    --bubble-out-1: #8849b4;
-    --bubble-out-2: #735acd;
-    --bubble-out-3: #5d6ae5;
-    --bubble-out-text: #ffffff;
-    --bubble-out-time: #ffffffa3;
-    --bubble-out-status: #ffffffe0;
+  --bubble-in-1: #3b3f5e;
+  --bubble-in-2: #373a4e;
+  --bubble-in-3: #32343d;
+  --bubble-in-text: #ffffff;
+  --bubble-in-time: #ffffffa3;
+  --bubble-in-author: #ffffff;
+  --bubble-out-1: #8849b4;
+  --bubble-out-2: #735acd;
+  --bubble-out-3: #5d6ae5;
+  --bubble-out-text: #ffffff;
+  --bubble-out-time: #ffffffa3;
+  --bubble-out-status: #ffffffe0;
 
-    --float: #25262d;
-    --shadow-float: 0 4px 16px #0000004d, 0 0 2px #0000004d;
+  --float: #25262d;
+  --shadow-float: 0 4px 16px #0000004d, 0 0 2px #0000004d;
 
-    color-scheme: dark;
-  }
+  color-scheme: dark;
 }
 
 @media (max-width: 1100px) {
