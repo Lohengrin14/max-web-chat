@@ -669,70 +669,230 @@ textarea {
   padding: 4px 12px 8px;
 }
 
-/* ——— Поиск / новый чат ——— */
+/* ——— Поиск по чатам ——— */
 
-.new-chat {
-  padding: 4px 12px 8px;
+.chat-search {
+  position: relative;
+  margin: 4px 12px 8px;
 }
 
-.search {
-  position: relative;
-  display: flex;
-  align-items: center;
+.chat-search__input {
+  width: 100%;
   height: 40px;
-  border-radius: var(--radius-m);
-  background: var(--input-bg);
+  padding: 0 36px 0 12px;
   border: 1px solid transparent;
+  border-radius: var(--radius-m);
+  outline: none;
+  background: var(--input-bg);
+  caret-color: var(--themed);
   transition: border-color 0.15s, background-color 0.15s;
 }
 
-.search:focus-within {
+.chat-search__input:focus {
   border-color: var(--themed);
   background: var(--bg-primary);
 }
 
-.search--invalid {
-  border-color: var(--negative);
-}
-
-.search__icon {
-  flex: none;
-  margin: 0 8px 0 12px;
-  color: var(--icon-tertiary);
-}
-
-.search__input {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  padding: 0;
-  border: 0;
-  outline: none;
-  background: transparent;
-  caret-color: var(--themed);
-}
-
-.search__input::placeholder {
+.chat-search__input::placeholder {
   color: var(--text-tertiary);
 }
 
-.search__submit {
+/* Свой крестик вместо системного у type="search". */
+.chat-search__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.chat-search__clear {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--icon-tertiary);
+  color: var(--bg-primary);
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.chat-search__clear:hover {
+  background: var(--icon-secondary);
+}
+
+/* Совпадение с запросом в результатах поиска — серая плашка, как в MAX. */
+.highlight {
+  border-radius: 3px;
+  background: var(--divider-strong);
+  color: inherit;
+}
+
+/* ——— Новый чат: кнопка «+» и окно «Поиск по номеру» ——— */
+
+/* Синий круг с белым плюсом, как в MAX. */
+.btn.sidebar__new-chat {
   width: 32px;
   min-height: 32px;
-  margin-right: 4px;
-  color: var(--themed);
+  background: var(--themed);
+  color: var(--on-themed);
 }
 
-.search__submit:disabled {
-  opacity: 0;
-  pointer-events: none;
+.btn.sidebar__new-chat:hover:not(:disabled) {
+  background: var(--themed-hover);
 }
 
-.new-chat__error {
+.btn.sidebar__new-chat:active:not(:disabled) {
+  background: var(--themed-pressed);
+}
+
+/* Сам <dialog> прозрачный и без отступов: клик по нему вне карточки — клик по затемнению. */
+.dialog {
+  width: min(400px, calc(100% - 32px));
+  max-width: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+}
+
+.dialog::backdrop {
+  background: #00000066;
+}
+
+.dialog__card {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px 20px;
+  border-radius: 24px;
+  background: var(--float);
+  box-shadow: var(--shadow-float);
+}
+
+.dialog__title {
+  margin-bottom: 16px;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.dialog__error {
   padding: 6px 4px 0;
   font-size: 13px;
   line-height: 16px;
   color: var(--negative);
+}
+
+.dialog__submit {
+  margin-top: 20px;
+}
+
+.phone-field {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  border-radius: var(--radius-l);
+  background: var(--input-bg);
+  border: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.phone-field:focus-within {
+  border-color: var(--themed);
+}
+
+.phone-field--invalid,
+.phone-field--invalid:focus-within {
+  border-color: var(--negative);
+}
+
+.phone-field__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 12px 0 4px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  caret-color: var(--themed);
+}
+
+.phone-field__input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.country-picker {
+  position: relative;
+  align-self: stretch;
+}
+
+.country-picker__toggle {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px 0 12px;
+  border: 0;
+  border-radius: var(--radius-l) 0 0 var(--radius-l);
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.country-picker__chevron {
+  color: var(--icon-secondary);
+  transition: transform 0.15s;
+}
+
+.country-picker__toggle[aria-expanded='true'] .country-picker__chevron {
+  transform: rotate(180deg);
+}
+
+.country-picker__list {
+  position: absolute;
+  z-index: 1;
+  top: calc(100% + 8px);
+  left: -4px;
+  width: 320px;
+  max-width: calc(100vw - 48px);
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: var(--radius-l);
+  background: var(--float);
+  box-shadow: var(--shadow-float);
+}
+
+.country-picker__option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--radius-m);
+  background: transparent;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.country-picker__option:hover,
+.country-picker__option[aria-selected='true'] {
+  background: var(--ghost-hover);
+}
+
+.country-picker__name {
+  flex: 1;
+}
+
+.country-picker__code {
+  color: var(--text-tertiary);
 }
 
 /* ——— Подсказка о вебхуках ——— */
@@ -743,7 +903,6 @@ textarea {
   border-radius: var(--radius-l);
   background: var(--float);
   box-shadow: var(--shadow-float);
-  border-left: 3px solid var(--themed);
 }
 
 .status-hint__head {

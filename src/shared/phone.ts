@@ -36,3 +36,40 @@ export function formatPhone(digits: string): string {
   if (by) return `+375 ${by[1]} ${by[2]}-${by[3]}-${by[4]}`;
   return /^\d+$/.test(digits) ? `+${digits}` : digits;
 }
+
+/** Страна в выборе кода номера. Только те, чьи номера принимает API (см. normalizePhone). */
+export interface Country {
+  id: string;
+  name: string;
+  flag: string;
+  /** Код страны без «+». */
+  dialCode: string;
+  /** Внутренний префикс, который набирают вместо кода страны: 8 в РФ, 80 в РБ. */
+  trunkPrefix: string;
+  /** Длина номера без кода страны. */
+  nationalLength: number;
+  placeholder: string;
+}
+
+export const COUNTRIES: readonly [Country, ...Country[]] = [
+  { id: 'ru', name: 'Россия', flag: '🇷🇺', dialCode: '7', trunkPrefix: '8', nationalLength: 10, placeholder: '999 123-45-67' },
+  { id: 'by', name: 'Беларусь', flag: '🇧🇾', dialCode: '375', trunkPrefix: '80', nationalLength: 9, placeholder: '29 123-45-67' },
+];
+
+/**
+ * Номер из поля рядом с выбранным кодом страны → международный вид для normalizePhone.
+ * Код страны подставляется, только если пользователь не ввёл его сам: вставленный целиком
+ * «+375 29 …», «8 999 …» или «7999…» остаётся как есть.
+ */
+export function withDialCode(country: Country, input: string): string {
+  if (input.trim().startsWith('+')) return input;
+  const digits = input.replace(/\D/g, '');
+  const { dialCode, trunkPrefix, nationalLength } = country;
+  if (digits.length === trunkPrefix.length + nationalLength && digits.startsWith(trunkPrefix)) {
+    return `+${dialCode}${digits.slice(trunkPrefix.length)}`;
+  }
+  if (digits.length === dialCode.length + nationalLength && digits.startsWith(dialCode)) {
+    return `+${digits}`;
+  }
+  return `+${dialCode}${digits}`;
+}

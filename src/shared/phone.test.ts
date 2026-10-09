@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPhone, normalizePhone } from './phone';
+import { COUNTRIES, formatPhone, normalizePhone, withDialCode } from './phone';
 
 describe('normalizePhone', () => {
   it.each([
@@ -31,5 +31,20 @@ describe('formatPhone', () => {
     expect(formatPhone('79991234567')).toBe('+7 999 123-45-67');
     expect(formatPhone('375291234567')).toBe('+375 29 123-45-67');
     expect(formatPhone('12345')).toBe('+12345');
+  });
+});
+
+describe('withDialCode', () => {
+  it.each([
+    ['ru', '999 123-45-67', '+79991234567'],
+    ['ru', '8 999 123-45-67', '+79991234567'],
+    ['ru', '79991234567', '+79991234567'],
+    ['ru', '+375 29 123-45-67', '+375 29 123-45-67'],
+    ['by', '29 123-45-67', '+375291234567'],
+    ['by', '80 29 123-45-67', '+375291234567'],
+    ['by', '375291234567', '+375291234567'],
+  ])('%s: «%s» → %s', (countryId, input, expected) => {
+    const country = COUNTRIES.find((c) => c.id === countryId)!;
+    expect(withDialCode(country, input)).toBe(expected);
   });
 });

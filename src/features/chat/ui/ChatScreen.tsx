@@ -15,7 +15,7 @@ import { useSession } from "@/features/auth/SessionProvider";
 import { Alert } from "@/ui/Alert";
 import { Avatar } from "@/ui/Avatar";
 import { Button } from "@/ui/Button";
-import { ChatsIcon, LogoutIcon } from "@/ui/icons";
+import { ChatsIcon, LogoutIcon, PlusIcon } from "@/ui/icons";
 import { useMessengerSync } from "../hooks/useMessengerSync";
 import { useRecentChats } from "../hooks/useRecentChats";
 import type { SyncIssue } from "../model/chatState";
@@ -26,8 +26,9 @@ import {
   useChatStore,
 } from "../model/chatStore";
 import { ChatList } from "./ChatList";
+import { ChatSearch } from "./ChatSearch";
 import { ChatWindow } from "./ChatWindow";
-import { NewChatForm } from "./NewChatForm";
+import { NewChatDialog } from "./NewChatDialog";
 import { StatusHint } from "./StatusHint";
 
 export function ChatScreen() {
@@ -51,6 +52,7 @@ function ChatLayout() {
   const { retry } = useMessengerSync();
   const { retry: retryRecent } = useRecentChats();
   const activeChatId = useChatStore((s) => s.activeChatId);
+  const [query, setQuery] = useState("");
 
   return (
     <div className="shell" data-view={activeChatId ? "chat" : "list"}>
@@ -58,12 +60,12 @@ function ChatLayout() {
       <aside className="sidebar" aria-label="Чаты">
         <SidebarHeader />
         <ConnectionBanner onRetry={retry} />
-        <NewChatForm />
+        <ChatSearch value={query} onChange={setQuery} />
         {/* Ссылка «Профиль» ведёт на инстанс, поэтому подсказка — только в боевом режиме. */}
         {state.status === "authenticated" && state.config.mode === "live" && (
           <StatusHint instanceId={state.config.credentials.instanceId} />
         )}
-        <ChatList onRetryRecent={retryRecent} />
+        <ChatList query={query} onRetryRecent={retryRecent} />
       </aside>
       <main className="pane">
         {activeChatId ? (
@@ -115,13 +117,23 @@ function NavigationRail() {
 
 function SidebarHeader() {
   const { logout } = useSession();
-  const label = useInstanceLabel();
+  const [newChatOpen, setNewChatOpen] = useState(false);
 
   return (
     <header className="sidebar__header">
       <div className="sidebar__heading">
         <h1 className="sidebar__title">Чаты</h1>
       </div>
+      <Button
+        variant="icon"
+        className="sidebar__new-chat"
+        onClick={() => setNewChatOpen(true)}
+        aria-label="Новый чат"
+        title="Новый чат"
+      >
+        <PlusIcon width={18} height={18} strokeWidth={2.4} />
+      </Button>
+      {newChatOpen && <NewChatDialog onClose={() => setNewChatOpen(false)} />}
       {/* На широком экране выход — в навигационной колонке, на узком — здесь. */}
       <Button
         variant="icon"
