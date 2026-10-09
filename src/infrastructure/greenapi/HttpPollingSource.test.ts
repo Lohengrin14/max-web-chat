@@ -85,6 +85,39 @@ describe('HttpPollingSource', () => {
     expect(calls[1]?.url).toContain('/deleteNotification/secret-token/2');
   });
 
+  it('408 от receiveNotification — это «уведомлений нет», а не сбой', async () => {
+    const { source, calls, sleep } = createSource([
+      { status: 408, body: 'Request Timeout' },
+      { status: 408, body: '' },
+      { body: notification(5) },
+      { body: { result: true } },
+    ]);
+    const onRaw = vi.fn();
+    const onIssue = vi.fn();
+    const stop = source.start({ onRaw, onFatal: vi.fn(), onIssue });
+
+    await vi.waitFor(() => expect(onRaw).toHaveBeenCalledOnce());
+    await vi.waitFor(() => expect(calls.length).toBeGreaterThanOrEqual(4));
+    stop();
+
+    expect(onIssue).not.toHaveBeenCalled();
+    // Ответы пришли мгновенно — только короткая пауза против «пулемёта», без нарастающего backoff.
+    expect(sleep.mock.calls.every(([ms]) => ms <= 1000)).toBe(true);
+    expect(calls.slice(0, 4).map((c) => c.method)).toEqual(['GET', 'GET', 'GET', 'DELETE']);
+  });
+
+  it('быстрые пустые ответы не превращаются в поток запросов: пауза до 1 с', async () => {
+    const { source, sleep } = createSource([{ body: 'null' }, { body: 'null' }, { body: 'null' }]);
+    const stop = source.start({ onRaw: vi.fn(), onFatal: vi.fn() });
+
+    await vi.waitFor(() => expect(sleep).toHaveBeenCalledTimes(3));
+    stop();
+    for (const [ms] of sleep.mock.calls) {
+      expect(ms).toBeGreaterThan(900);
+      expect(ms).toBeLessThanOrEqual(1000);
+    }
+  });
+
   it('останавливается на 401 и сообщает фатальную ошибку', async () => {
     const { source, calls } = createSource([{ status: 401, body: 'Unauthorized' }]);
     const onFatal = vi.fn();

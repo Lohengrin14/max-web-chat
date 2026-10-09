@@ -24,9 +24,16 @@ describe('mapHttpError', () => {
     [400, 'Instance account is expired. Renew your instance from personal area', AuthError],
     [400, 'Validation failed. Details: \'chatId\' is required', ValidationError],
     [502, 'Bad Gateway', ApiError],
+    [408, 'Request Timeout', ApiError],
   ])('%i «%s» → %o', (status, body, ErrorClass) => {
     expect(mapHttpError(status, body)).toBeInstanceOf(ErrorClass);
   });
+});
+
+it('408 — временная ошибка с понятным текстом', () => {
+  const error = mapHttpError(408, 'Request Timeout');
+  expect(error.retryable).toBe(true);
+  expect(error.message).toBe('Сервер не ответил вовремя. Попробуйте ещё раз.');
 });
 
 describe('HttpClient', () => {

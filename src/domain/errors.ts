@@ -81,7 +81,8 @@ export class ApiError extends MessengerError {
     options?: { cause?: unknown },
   ) {
     super(message, options);
-    this.retryable = httpStatus === undefined || httpStatus >= 500 || httpStatus === 499;
+    // 408 и 499 — оборванный по времени запрос, 5xx — сбой на стороне сервера: всё это временно.
+    this.retryable = httpStatus === undefined || httpStatus >= 500 || httpStatus === 499 || httpStatus === 408;
   }
 }
 

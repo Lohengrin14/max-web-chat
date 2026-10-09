@@ -142,6 +142,7 @@ export function mapHttpError(status: number, bodyText: string): MessengerError {
     return new ValidationError('Сервер отклонил запрос: некорректные данные.');
   }
   if (status === 404) return new AuthError('Сервер не нашёл метод: проверьте apiUrl.');
+  if (status === 408) return new ApiError('Сервер не ответил вовремя. Попробуйте ещё раз.', status);
   return new ApiError(`Ошибка сервера (${status}). Попробуйте позже.`, status);
 }
 

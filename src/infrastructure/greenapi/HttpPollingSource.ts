@@ -13,7 +13,7 @@
  * уведомление навсегда заблокировало бы все следующие. Ошибка обработчика — баг клиента,
  * а не причина остановить приём сообщений.
  */
-import { AuthError, ConfigurationError, isAbortError } from '@/domain/errors';
+import { ApiError, AuthError, ConfigurationError, isAbortError } from '@/domain/errors';
 import type { NotificationHandlers, NotificationSource, Unsubscribe } from '@/domain/ports';
 import type { HttpClient } from '../http/HttpClient';
 import { receiveNotificationResponseSchema } from './schemas';
@@ -36,6 +36,13 @@ const DEFAULTS = {
 
 /** Запас сверх receiveTimeout: сервер отвечает по таймауту, а не мы обрываем запрос. */
 const REQUEST_TIMEOUT_MARGIN_MS = 10_000;
+
+/**
+ * Минимальный интервал между пустыми опросами. Long poll должен «висеть» до receiveTimeout,
+ * но если сервер почему-то отвечает пустым сразу, без паузы цикл слал бы сотни запросов
+ * в минуту и упёрся бы в лимит (429).
+ */
+const MIN_EMPTY_POLL_MS = 1_000;
 
 export class HttpPollingSource implements NotificationSource {
   private readonly options: Required<PollingOptions>;
@@ -61,21 +68,22 @@ export class HttpPollingSource implements NotificationSource {
 
     while (!signal.aborted) {
       try {
-        const raw = await this.http.request({
-          httpMethod: 'GET',
-          apiMethod: 'receiveNotification',
-          query: { receiveTimeout: receiveTimeoutSec },
-          signal,
-          timeoutMs: receiveTimeoutSec * 1000 + REQUEST_TIMEOUT_MARGIN_MS,
-        });
-        const notification = receiveNotificationResponseSchema.parse(raw);
+        const startedAt = Date.now();
+        const notification = await this.receive(receiveTimeoutSec, signal);
 
         if (failures > 0) {
           failures = 0;
           handlers.onIssue?.(null);
         }
-        // Пустой ответ — истёк receiveTimeout, уведомлений нет. Сразу ждём следующее.
-        if (notification === null) continue;
+        // Пустой ответ — уведомлений нет, ждём следующее. Если сервер ответил подозрительно
+        // быстро, выдерживаем паузу, чтобы не забрасывать его запросами.
+        if (notification === null) {
+          const elapsed = Date.now() - startedAt;
+          if (elapsed < MIN_EMPTY_POLL_MS) {
+            await this.options.sleep(MIN_EMPTY_POLL_MS - elapsed, signal).catch(() => undefined);
+          }
+          continue;
+        }
 
         try {
           await handlers.onRaw(notification.body);
@@ -105,6 +113,28 @@ export class HttpPollingSource implements NotificationSource {
         handlers.onIssue?.(error instanceof Error ? error : new Error(String(error)));
         await this.options.sleep(this.backoffDelay(failures), signal).catch(() => undefined);
       }
+    }
+  }
+
+  /**
+   * Один запрос ReceiveNotification. Ответ 408 (Request Timeout) означает то же, что пустой
+   * ответ: сервер или прокси перед ним прервал ожидание раньше receiveTimeout, уведомлений
+   * за это время не было. Это штатная ситуация long polling, а не сбой: без этой ветки
+   * пользователь видел бы «Ошибка сервера (408). Переподключаемся…» при работающем чате.
+   */
+  private async receive(receiveTimeoutSec: number, signal: AbortSignal) {
+    try {
+      const raw = await this.http.request({
+        httpMethod: 'GET',
+        apiMethod: 'receiveNotification',
+        query: { receiveTimeout: receiveTimeoutSec },
+        signal,
+        timeoutMs: receiveTimeoutSec * 1000 + REQUEST_TIMEOUT_MARGIN_MS,
+      });
+      return receiveNotificationResponseSchema.parse(raw);
+    } catch (error) {
+      if (error instanceof ApiError && error.httpStatus === 408) return null;
+      throw error;
     }
   }
 
