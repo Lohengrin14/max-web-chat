@@ -14,6 +14,8 @@ import {
   addPendingMessage,
   applyEvent,
   applyHistory,
+  checkStalledStatuses,
+  dismissStatusHint,
   confirmMessage,
   createInitialChatState,
   failMessage,
@@ -40,6 +42,8 @@ export interface ChatActions {
   applyHistory(batch: HistoryBatch): void;
   setRecentStatus(status: LoadStatus): void;
   setHistoryStatus(chatId: ChatId, status: LoadStatus): void;
+  checkStalledStatuses(): void;
+  dismissStatusHint(): void;
 }
 
 export type ChatStore = ChatState & { actions: ChatActions };
@@ -61,6 +65,8 @@ export function createChatStore(now: () => number = Date.now): StoreApi<ChatStor
         applyHistory: (batch) => update((s) => applyHistory(s, batch)),
         setRecentStatus: (status) => update((s) => setRecentStatus(s, status)),
         setHistoryStatus: (chatId, status) => update((s) => setHistoryStatus(s, chatId, status)),
+        checkStalledStatuses: () => update((s) => checkStalledStatuses(s, now())),
+        dismissStatusHint: () => update((s) => dismissStatusHint(s)),
       },
     };
   });

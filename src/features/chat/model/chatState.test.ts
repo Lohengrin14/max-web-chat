@@ -4,6 +4,9 @@ import {
   addPendingMessage,
   applyEvent,
   applyHistory,
+  checkStalledStatuses,
+  dismissStatusHint,
+  STALLED_STATUS_TIMEOUT_MS,
   confirmMessage,
   createInitialChatState,
   failMessage,
@@ -240,5 +243,41 @@ describe('chatState: история с сервера', () => {
     const batch = { chats: [{ id: CHAT, title: 'Анна' }], messages: [historyMessage('a', 1_000)] };
     const once = applyHistory(createInitialChatState(), batch);
     expect(applyHistory(once, batch)).toBe(once);
+  });
+});
+
+describe('chatState: подсказка о вебхуках статусов', () => {
+  // withPending() отправляет сообщение в момент 1_000_000.
+  const queued = () => confirmMessage(withPending(), { chatId: CHAT, tempId: 'tmp-1', id: 'srv-1' });
+  const after = (ms: number) => 1_000_000 + ms;
+
+  it('показывается, если сообщение дольше таймаута висит в queued', () => {
+    expect(checkStalledStatuses(queued(), after(STALLED_STATUS_TIMEOUT_MS)).statusHint).toBe('shown');
+  });
+
+  it('не показывается раньше таймаута и если сообщение ещё не принято сервером', () => {
+    expect(checkStalledStatuses(queued(), after(STALLED_STATUS_TIMEOUT_MS - 1)).statusHint).toBe('hidden');
+    // pending — запрос ещё идёт; это проблема сети, а не вебхуков.
+    expect(checkStalledStatuses(withPending(), after(STALLED_STATUS_TIMEOUT_MS)).statusHint).toBe('hidden');
+  });
+
+  it('не показывается, если эхо или статус пришли', () => {
+    const echoed = applyEvent(queued(), echoEvent('srv-1'));
+    expect(checkStalledStatuses(echoed, after(STALLED_STATUS_TIMEOUT_MS)).statusHint).toBe('hidden');
+  });
+
+  it('скрывается сама, когда статусы начинают приходить', () => {
+    const shown = checkStalledStatuses(queued(), after(STALLED_STATUS_TIMEOUT_MS));
+    expect(applyEvent(shown, statusEvent('srv-1', 'delivered')).statusHint).toBe('hidden');
+    expect(applyEvent(shown, echoEvent('srv-1')).statusHint).toBe('hidden');
+    // Входящее сообщение ничего не говорит о статусах исходящих.
+    expect(applyEvent(shown, incomingEvent('in-1')).statusHint).toBe('shown');
+  });
+
+  it('закрытая пользователем больше не появляется в этой сессии', () => {
+    const dismissed = dismissStatusHint(checkStalledStatuses(queued(), after(STALLED_STATUS_TIMEOUT_MS)));
+    expect(dismissed.statusHint).toBe('dismissed');
+    expect(checkStalledStatuses(dismissed, after(STALLED_STATUS_TIMEOUT_MS * 2)).statusHint).toBe('dismissed');
+    expect(applyEvent(dismissed, statusEvent('srv-1', 'read')).statusHint).toBe('dismissed');
   });
 });

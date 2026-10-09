@@ -23,6 +23,7 @@ import { ChatStoreContext, createChatStore, useChatActions, useChatStore } from 
 import { ChatList } from './ChatList';
 import { ChatWindow } from './ChatWindow';
 import { NewChatForm } from './NewChatForm';
+import { StatusHint } from './StatusHint';
 
 export function ChatScreen() {
   const [store] = useState(() => createChatStore());
@@ -41,6 +42,7 @@ function useInstanceLabel(): string {
 }
 
 function ChatLayout() {
+  const { state } = useSession();
   const { retry } = useMessengerSync();
   const { retry: retryRecent } = useRecentChats();
   const activeChatId = useChatStore((s) => s.activeChatId);
@@ -52,6 +54,10 @@ function ChatLayout() {
         <SidebarHeader />
         <ConnectionBanner onRetry={retry} />
         <NewChatForm />
+        {/* Ссылка «Профиль» ведёт на инстанс, поэтому подсказка — только в боевом режиме. */}
+        {state.status === 'authenticated' && state.config.mode === 'live' && (
+          <StatusHint instanceId={state.config.credentials.instanceId} />
+        )}
         <ChatList onRetryRecent={retryRecent} />
       </aside>
       <main className="pane">

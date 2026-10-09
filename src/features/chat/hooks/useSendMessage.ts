@@ -9,6 +9,7 @@ import { useCallback } from 'react';
 import { errorMessage } from '@/domain/errors';
 import type { ChatId } from '@/domain/models';
 import { useGateway, useSession } from '@/features/auth/SessionProvider';
+import { STALLED_STATUS_TIMEOUT_MS } from '../model/chatState';
 import { useChatActions } from '../model/chatStore';
 
 let localCounter = 0;
@@ -33,6 +34,10 @@ export function useSendMessage(): { send: (chatId: ChatId, text: string) => Prom
       try {
         const { id } = await gateway.sendText({ chatId, text: trimmed });
         actions.confirm({ chatId, tempId, id });
+        // Если за таймаут не придёт ни эхо, ни статус, модель покажет подсказку про вебхуки.
+        // Таймер не снимается при размонтировании: хранилище живёт всю сессию, а проверка
+        // должна сработать, даже если пользователь уже переключился на другой чат.
+        setTimeout(actions.checkStalledStatuses, STALLED_STATUS_TIMEOUT_MS + 100);
       } catch (error) {
         actions.fail({ chatId, tempId, error: errorMessage(error) });
         handleError(error);

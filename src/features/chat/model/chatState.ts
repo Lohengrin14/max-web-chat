@@ -32,6 +32,18 @@ export interface PendingStatus {
 /** Состояние загрузки данных с сервера. */
 export type LoadStatus = 'loading' | 'loaded' | 'failed';
 
+/**
+ * Подсказка «включите вебхуки»: hidden — не нужна, shown — показана,
+ * dismissed — пользователь закрыл её и в этой сессии она больше не появляется.
+ */
+export type StatusHint = 'hidden' | 'shown' | 'dismissed';
+
+/**
+ * Через сколько после отправки сообщение, так и не получившее ни эха, ни статуса,
+ * считается «зависшим». Обычно эхо приходит за 1–3 с; 15 с — запас на медленную очередь.
+ */
+export const STALLED_STATUS_TIMEOUT_MS = 15_000;
+
 /** Проблема синхронизации для показа в интерфейсе. */
 export interface SyncIssue {
   message: string;
@@ -56,6 +68,8 @@ export interface ChatState {
   recentStatus: LoadStatus | null;
   /** Загрузка истории по чатам: отсутствие ключа — история ещё не запрашивалась. */
   historyStatus: Record<ChatId, LoadStatus>;
+  /** Подсказка о выключенных вебхуках статусов (см. checkStalledStatuses). */
+  statusHint: StatusHint;
 }
 
 /** Ограничение, чтобы статусы сообщений, отправленных не из этого окна, не копились бесконечно. */
@@ -71,6 +85,7 @@ export function createInitialChatState(): ChatState {
     syncIssue: null,
     recentStatus: null,
     historyStatus: {},
+    statusHint: 'hidden',
   };
 }
 
@@ -165,13 +180,15 @@ export function applyEvent(state: ChatState, event: MessengerEvent): ChatState {
     case 'message': {
       const { message } = event;
       const isNew = !findMessage(state, message.chatId, message.id);
-      let next = upsertChat(state, event.chat, message.timestamp);
+      // Эхо исходящего — доказательство, что уведомления о статусах приходят.
+      let next = message.direction === 'outgoing' ? hideStatusHint(state) : state;
+      next = upsertChat(next, event.chat, message.timestamp);
       next = upsertMessage(next, message);
       const countUnread = isNew && message.direction === 'incoming' && next.activeChatId !== message.chatId;
       return touchChat(next, message.chatId, message.timestamp, countUnread);
     }
     case 'status':
-      return applyStatus(state, event.chatId, event.messageId, { status: event.status, error: event.error });
+      return applyStatus(hideStatusHint(state), event.chatId, event.messageId, { status: event.status, error: event.error });
     case 'connection':
       return setConnection(state, event.state);
   }
@@ -204,6 +221,26 @@ export function setHistoryStatus(state: ChatState, chatId: ChatId, status: LoadS
   return { ...state, historyStatus: { ...state.historyStatus, [chatId]: status } };
 }
 
+/**
+ * Проверка «зависших» статусов. Если исходящее дольше таймаута остаётся в `queued` —
+ * сервер принял сообщение, но не прислал ни эха, ни статуса, — значит, у инстанса
+ * выключены уведомления об отправленных сообщениях и их статусах. Показываем подсказку.
+ *
+ * Определяем по поведению, а не по настройкам инстанса: так не нужен лишний запрос
+ * GetSettings, и подсказка появляется ровно тогда, когда проблема видна пользователю.
+ */
+export function checkStalledStatuses(state: ChatState, now: number, timeoutMs = STALLED_STATUS_TIMEOUT_MS): ChatState {
+  if (state.statusHint !== 'hidden') return state;
+  const stalled = Object.values(state.messages).some((list) =>
+    list.some((m) => m.direction === 'outgoing' && m.status === 'queued' && now - m.timestamp >= timeoutMs),
+  );
+  return stalled ? { ...state, statusHint: 'shown' } : state;
+}
+
+export function dismissStatusHint(state: ChatState): ChatState {
+  return state.statusHint === 'dismissed' ? state : { ...state, statusHint: 'dismissed' };
+}
+
 /** Чаты по убыванию последней активности. */
 export function selectChatList(state: Pick<ChatState, 'chats'>): Chat[] {
   return Object.values(state.chats).sort((a, b) => b.lastActivity - a.lastActivity);
@@ -214,6 +251,11 @@ export function findChatByPhone(state: ChatState, phone: string): Chat | undefin
 }
 
 // ——— внутренние помощники ———
+
+/** Статусы приходят — подсказка больше не нужна (закрытую пользователем не трогаем). */
+function hideStatusHint(state: ChatState): ChatState {
+  return state.statusHint === 'shown' ? { ...state, statusHint: 'hidden' } : state;
+}
 
 function applyStatus(state: ChatState, chatId: ChatId, messageId: string, pending: PendingStatus): ChatState {
   const located = findMessage(state, chatId, messageId);

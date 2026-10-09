@@ -101,3 +101,9 @@ export const SearchIcon = (p: IconProps) => (
     <path d="m20 20-4.4-4.4" />
   </Icon>
 );
+
+export const CloseIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M6 6l12 12M18 6 6 18" />
+  </Icon>
+);
