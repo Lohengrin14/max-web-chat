@@ -8,6 +8,7 @@ import { formatPhone } from '@/shared/phone';
 import { Avatar } from '@/ui/Avatar';
 import { Button } from '@/ui/Button';
 import { BackIcon } from '@/ui/icons';
+import { useChatHistory } from '../hooks/useChatHistory';
 import { useSendMessage } from '../hooks/useSendMessage';
 import { useChatActions, useChatStore } from '../model/chatStore';
 import { Composer } from './Composer';
@@ -18,6 +19,7 @@ export function ChatWindow({ chatId }: { chatId: ChatId }) {
   const chat = useChatStore((s) => s.chats[chatId]);
   const { selectChat } = useChatActions();
   const { send, maxLength } = useSendMessage();
+  const history = useChatHistory(chatId);
 
   if (!chat) return null;
   const title = chatTitle(chat);
@@ -35,7 +37,7 @@ export function ChatWindow({ chatId }: { chatId: ChatId }) {
           <p className="chat__subtitle">{subtitle}</p>
         </div>
       </header>
-      <MessageList chatId={chatId} />
+      <MessageList chatId={chatId} historyStatus={history.status} onRetryHistory={history.retry} />
       <Composer onSend={(text) => void send(chatId, text)} maxLength={maxLength} />
     </section>
   );

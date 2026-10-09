@@ -3,6 +3,7 @@ import { toChatId, type Message, type MessengerEvent } from '@/domain/models';
 import {
   addPendingMessage,
   applyEvent,
+  applyHistory,
   confirmMessage,
   createInitialChatState,
   failMessage,
@@ -191,5 +192,53 @@ describe('chatState: список чатов', () => {
   it('событие подключения обновляет состояние', () => {
     const state = applyEvent(createInitialChatState(), { type: 'connection', state: 'notAuthorized' });
     expect(state.connection).toBe('notAuthorized');
+  });
+});
+
+describe('chatState: история с сервера', () => {
+  const historyMessage = (id: string, timestamp: number, extra: Partial<Message> = {}): Message => ({
+    id,
+    chatId: CHAT,
+    direction: 'incoming',
+    content: { kind: 'text', text: id },
+    timestamp,
+    ...extra,
+  });
+
+  it('восстанавливает чаты и сообщения без непрочитанных, по времени', () => {
+    const state = applyHistory(createInitialChatState(), {
+      chats: [{ id: CHAT, title: 'Анна', phone: '79991234567' }],
+      messages: [historyMessage('b', 2_000), historyMessage('a', 1_000)],
+    });
+    expect(state.chats[CHAT]).toMatchObject({ title: 'Анна', phone: '79991234567', lastActivity: 2_000, unreadCount: 0 });
+    expect(messagesOf(state).map((m) => m.id)).toEqual(['a', 'b']);
+  });
+
+  it('не дублирует сообщения, уже пришедшие уведомлениями, и не откатывает статус', () => {
+    let state = confirmMessage(withPending(), { chatId: CHAT, tempId: 'tmp-1', id: 'srv-1' });
+    state = applyEvent(state, statusEvent('srv-1', 'read'));
+    state = applyHistory(state, {
+      chats: [{ id: CHAT }],
+      messages: [historyMessage('srv-1', 1_000_000, { direction: 'outgoing', status: 'delivered' })],
+    });
+    expect(messagesOf(state)).toHaveLength(1);
+    expect(messagesOf(state)[0]).toMatchObject({ id: 'srv-1', status: 'read' });
+  });
+
+  it('повышает статус из истории и не затирает известное имя пустым', () => {
+    let state = confirmMessage(withPending(), { chatId: CHAT, tempId: 'tmp-1', id: 'srv-1' });
+    state = applyEvent(state, incomingEvent('in-1', { title: 'Анна' }));
+    state = applyHistory(state, {
+      chats: [{ id: CHAT }],
+      messages: [historyMessage('srv-1', 1_000_000, { direction: 'outgoing', status: 'read' })],
+    });
+    expect(messagesOf(state).find((m) => m.id === 'srv-1')?.status).toBe('read');
+    expect(state.chats[CHAT]?.title).toBe('Анна');
+  });
+
+  it('повторное применение того же снимка не меняет состояние', () => {
+    const batch = { chats: [{ id: CHAT, title: 'Анна' }], messages: [historyMessage('a', 1_000)] };
+    const once = applyHistory(createInitialChatState(), batch);
+    expect(applyHistory(once, batch)).toBe(once);
   });
 });

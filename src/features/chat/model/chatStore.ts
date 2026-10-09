@@ -9,18 +9,22 @@
 import { createContext, useContext } from 'react';
 import { useStore } from 'zustand';
 import { createStore, type StoreApi } from 'zustand/vanilla';
-import type { ChatId, ChatInfo, ConnectionState, MessengerEvent } from '@/domain/models';
+import type { ChatId, ChatInfo, ConnectionState, HistoryBatch, MessengerEvent } from '@/domain/models';
 import {
   addPendingMessage,
   applyEvent,
+  applyHistory,
   confirmMessage,
   createInitialChatState,
   failMessage,
   openChat,
   selectChat,
   setConnection,
+  setHistoryStatus,
+  setRecentStatus,
   setSyncIssue,
   type ChatState,
+  type LoadStatus,
   type SyncIssue,
 } from './chatState';
 
@@ -33,6 +37,9 @@ export interface ChatActions {
   fail(input: { chatId: ChatId; tempId: string; error: string }): void;
   setConnection(state: ConnectionState): void;
   setSyncIssue(issue: SyncIssue | null): void;
+  applyHistory(batch: HistoryBatch): void;
+  setRecentStatus(status: LoadStatus): void;
+  setHistoryStatus(chatId: ChatId, status: LoadStatus): void;
 }
 
 export type ChatStore = ChatState & { actions: ChatActions };
@@ -51,6 +58,9 @@ export function createChatStore(now: () => number = Date.now): StoreApi<ChatStor
         fail: (input) => update((s) => failMessage(s, input)),
         setConnection: (state) => update((s) => setConnection(s, state)),
         setSyncIssue: (issue) => update((s) => setSyncIssue(s, issue)),
+        applyHistory: (batch) => update((s) => applyHistory(s, batch)),
+        setRecentStatus: (status) => update((s) => setRecentStatus(s, status)),
+        setHistoryStatus: (chatId, status) => update((s) => setHistoryStatus(s, chatId, status)),
       },
     };
   });

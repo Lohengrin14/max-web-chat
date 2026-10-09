@@ -8,7 +8,7 @@
  * не затрагивает этот класс.
  */
 import { ApiError, InstanceNotReadyError, RateLimitError, ValidationError } from '@/domain/errors';
-import { toChatId, type ChatId, type ConnectionState, type Credentials } from '@/domain/models';
+import { toChatId, type ChatId, type ConnectionState, type Credentials, type HistoryBatch } from '@/domain/models';
 import type {
   ContactLookupResult,
   GatewayCapabilities,
@@ -20,11 +20,23 @@ import type {
 import { createSharedSubscription } from '../common/sharedSubscription';
 import { HttpClient, type FetchFn } from '../http/HttpClient';
 import { HttpPollingSource } from './HttpPollingSource';
-import { mapConnectionState, mapNotification } from './mappers';
-import { checkAccountResponseSchema, sendMessageResponseSchema, stateInstanceResponseSchema } from './schemas';
+import { buildHistoryBatch, mapConnectionState, mapNotification } from './mappers';
+import {
+  checkAccountResponseSchema,
+  contactsResponseSchema,
+  journalResponseSchema,
+  sendMessageResponseSchema,
+  stateInstanceResponseSchema,
+} from './schemas';
 
 /** Лимит длины текста SendMessage по документации. */
 const MAX_TEXT_LENGTH = 4000;
+
+/** За какой период подтягивать недавние чаты (минуты; 1440 — значение API по умолчанию, сутки). */
+const RECENT_MINUTES = 1440;
+
+/** Сколько последних сообщений загружать при открытии чата. */
+const HISTORY_COUNT = 100;
 
 export class GreenApiGateway implements MessengerGateway {
   readonly capabilities: GatewayCapabilities = { maxTextLength: MAX_TEXT_LENGTH };
@@ -92,6 +104,42 @@ export class GreenApiGateway implements MessengerGateway {
     const parsed = sendMessageResponseSchema.safeParse(raw);
     if (!parsed.success) throw new ApiError('Сервер не вернул идентификатор сообщения.');
     return { id: parsed.data.idMessage };
+  }
+
+  /**
+   * Недавние чаты: входящие и исходящие за сутки по всем чатам аккаунта (два журнальных
+   * метода, запросы параллельно — лимиты у методов раздельные) плюс контакты для имён.
+   * GetChats не используется: он отдаёт все чаты аккаунта без имён, сообщений и порядка.
+   */
+  async loadRecent(signal?: AbortSignal): Promise<HistoryBatch> {
+    const query = { minutes: RECENT_MINUTES };
+    const [incoming, outgoing, contacts] = await Promise.all([
+      this.requestList('GET', 'lastIncomingMessages', { query, signal }),
+      this.requestList('GET', 'lastOutgoingMessages', { query, signal }),
+      // Имена — приятное дополнение: если контакты не загрузились, список всё равно показываем.
+      this.requestList('GET', 'getContacts', { signal }, contactsResponseSchema).catch((): unknown[] => []),
+    ]);
+    return buildHistoryBatch([...incoming, ...outgoing], contacts);
+  }
+
+  async loadChatHistory(chatId: ChatId, signal?: AbortSignal): Promise<HistoryBatch> {
+    const items = await this.requestList('POST', 'getChatHistory', {
+      body: { chatId, count: HISTORY_COUNT },
+      signal,
+    });
+    return buildHistoryBatch(items);
+  }
+
+  /** Запрос метода, отвечающего массивом. Неожиданный ответ — пустой список, а не падение экрана. */
+  private async requestList(
+    httpMethod: 'GET' | 'POST',
+    apiMethod: string,
+    options: { query?: Record<string, number>; body?: unknown; signal?: AbortSignal },
+    schema = journalResponseSchema,
+  ): Promise<unknown[]> {
+    const raw = await this.http.request({ httpMethod, apiMethod, ...options });
+    const parsed = schema.safeParse(raw);
+    return parsed.success ? parsed.data : [];
   }
 }
 

@@ -89,3 +89,42 @@ export const stateNotificationSchema = z.object({
 
 export type MessageNotification = z.infer<typeof messageNotificationSchema>;
 export type StatusNotification = z.infer<typeof statusNotificationSchema>;
+
+/**
+ * Элемент журнала сообщений: LastIncomingMessages, LastOutgoingMessages, GetChatHistory.
+ * Формат отличается от уведомлений: поля сообщения лежат «плоско» (`textMessage`,
+ * `statusMessage`), а не в `messageData`/`senderData`.
+ */
+export const journalMessageSchema = z.object({
+  type: z.enum(['incoming', 'outgoing']),
+  idMessage: z.string().min(1),
+  timestamp: z.number(),
+  typeMessage: z.string(),
+  chatId: z.string().min(1),
+  textMessage: z.string().optional(),
+  extendedTextMessage: z.object({ text: z.string() }).optional(),
+  /** Только у исходящих: sent / delivered / read (иногда пустая строка). */
+  statusMessage: z.string().optional(),
+  senderName: z.string().optional(),
+  senderContactName: z.string().optional(),
+  isDeleted: z.boolean().optional(),
+});
+
+/**
+ * Ответ журнальных методов — массив. Элементы проверяются по одному в маппере, чтобы один
+ * непонятный элемент не лишал пользователя всей истории.
+ */
+export const journalResponseSchema = z.array(z.unknown());
+
+/** GetContacts → массив контактов; нужен только для имён чатов. */
+export const contactSchema = z.object({
+  chatId: z.string().min(1),
+  name: z.string().optional(),
+  contactName: z.string().optional(),
+  phoneNumber: z.number().optional(),
+});
+
+export const contactsResponseSchema = z.array(z.unknown());
+
+export type JournalMessage = z.infer<typeof journalMessageSchema>;
+export type Contact = z.infer<typeof contactSchema>;

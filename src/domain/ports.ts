@@ -9,6 +9,7 @@
 import type {
   ChatId,
   ConnectionState,
+  HistoryBatch,
   MessengerEvent,
   SessionConfig,
 } from './models';
@@ -65,6 +66,19 @@ export interface MessengerGateway {
    * @returns id сообщения у провайдера — по нему сопоставляются последующие статусы.
    */
   sendText(input: { chatId: ChatId; text: string }): Promise<{ id: string }>;
+
+  /**
+   * Недавние чаты аккаунта с их последними сообщениями — чтобы после перезагрузки страницы
+   * или повторного входа список чатов не начинался с нуля. Включает и диалоги, начатые
+   * не в этом приложении (например, с телефона).
+   */
+  loadRecent(signal?: AbortSignal): Promise<HistoryBatch>;
+
+  /**
+   * История одного чата (последние сообщения). Вызывается при открытии чата.
+   * Провайдер может ограничивать частоту вызова — не вызывать повторно для уже загруженного чата.
+   */
+  loadChatHistory(chatId: ChatId, signal?: AbortSignal): Promise<HistoryBatch>;
 
   /**
    * Подписка на входящие события. Сколько бы ни было подписчиков, источник событий

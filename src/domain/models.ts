@@ -94,6 +94,16 @@ export type ConnectionState =
   | 'restricted'
   | 'unknown';
 
+/**
+ * Снимок переписки, загруженный с сервера (недавние чаты или история одного чата).
+ * В отличие от событий, это состояние «на момент запроса»: оно не увеличивает счётчик
+ * непрочитанных и сливается с уже известными сообщениями по id.
+ */
+export interface HistoryBatch {
+  chats: ChatInfo[];
+  messages: Message[];
+}
+
 /** События, которые шлюз доставляет приложению из мессенджера. */
 export type MessengerEvent =
   | { type: 'message'; chat: ChatInfo; message: Message }

@@ -18,6 +18,7 @@ import type {
   ChatId,
   ChatInfo,
   ConnectionState,
+  HistoryBatch,
   Message,
   MessageStatus,
   MessengerEvent,
@@ -27,6 +28,9 @@ export interface PendingStatus {
   status: MessageStatus;
   error?: string;
 }
+
+/** Состояние загрузки данных с сервера. */
+export type LoadStatus = 'loading' | 'loaded' | 'failed';
 
 /** Проблема синхронизации для показа в интерфейсе. */
 export interface SyncIssue {
@@ -48,6 +52,10 @@ export interface ChatState {
   activeChatId: ChatId | null;
   connection: ConnectionState;
   syncIssue: SyncIssue | null;
+  /** Загрузка недавних чатов при открытии экрана; null — ещё не запускалась. */
+  recentStatus: LoadStatus | null;
+  /** Загрузка истории по чатам: отсутствие ключа — история ещё не запрашивалась. */
+  historyStatus: Record<ChatId, LoadStatus>;
 }
 
 /** Ограничение, чтобы статусы сообщений, отправленных не из этого окна, не копились бесконечно. */
@@ -61,6 +69,8 @@ export function createInitialChatState(): ChatState {
     activeChatId: null,
     connection: 'unknown',
     syncIssue: null,
+    recentStatus: null,
+    historyStatus: {},
   };
 }
 
@@ -165,6 +175,33 @@ export function applyEvent(state: ChatState, event: MessengerEvent): ChatState {
     case 'connection':
       return setConnection(state, event.state);
   }
+}
+
+/**
+ * Слияние снимка с сервера (недавние чаты, история чата) с текущим состоянием.
+ *
+ * Тот же upsert по id, что и для событий: сообщения, которые уже пришли уведомлениями,
+ * не дублируются, а их статусы только растут. В отличие от событий, история не
+ * увеличивает счётчик непрочитанных — это прошлое, а не новые сообщения.
+ */
+export function applyHistory(state: ChatState, batch: HistoryBatch): ChatState {
+  let next = state;
+  for (const info of batch.chats) next = upsertChat(next, info);
+  for (const message of batch.messages) {
+    next = upsertChat(next, { id: message.chatId });
+    next = upsertMessage(next, message);
+    next = touchChat(next, message.chatId, message.timestamp, false);
+  }
+  return next;
+}
+
+export function setRecentStatus(state: ChatState, recentStatus: LoadStatus): ChatState {
+  return state.recentStatus === recentStatus ? state : { ...state, recentStatus };
+}
+
+export function setHistoryStatus(state: ChatState, chatId: ChatId, status: LoadStatus): ChatState {
+  if (state.historyStatus[chatId] === status) return state;
+  return { ...state, historyStatus: { ...state.historyStatus, [chatId]: status } };
 }
 
 /** Чаты по убыванию последней активности. */

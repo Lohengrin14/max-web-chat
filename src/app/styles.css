@@ -742,6 +742,20 @@ textarea {
   padding: 0;
 }
 
+.chat-list__notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 8px;
+  padding: 8px 8px 8px 12px;
+  border-radius: var(--radius-m);
+  background: var(--negative-fade);
+  color: var(--negative);
+  font-size: 14px;
+  line-height: 18px;
+}
+
 .chat-list__empty {
   padding: 32px 24px;
   text-align: center;
@@ -941,6 +955,20 @@ textarea {
 
 .messages__empty {
   margin: auto;
+}
+
+.messages__history {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.capsule--action {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .messages__list {

@@ -1,16 +1,19 @@
 /**
  * Список чатов, отсортированный по последней активности, с превью последнего сообщения.
+ * Пока загружаются недавние чаты с сервера, вместо пустого состояния показывается загрузка.
  */
 import { useMemo } from 'react';
 import type { Chat, Message } from '@/domain/models';
 import { Avatar } from '@/ui/Avatar';
+import { Button } from '@/ui/Button';
 import { StatusTicks } from '@/ui/StatusTicks';
 import { selectChatList } from '../model/chatState';
 import { useChatActions, useChatStore } from '../model/chatStore';
 import { chatTitle, contentPreview, formatListTime } from './format';
 
-export function ChatList() {
+export function ChatList({ onRetryRecent }: { onRetryRecent: () => void }) {
   const chats = useChatStore((s) => s.chats);
+  const recentStatus = useChatStore((s) => s.recentStatus);
   const messages = useChatStore((s) => s.messages);
   const activeChatId = useChatStore((s) => s.activeChatId);
   const { selectChat } = useChatActions();
@@ -18,16 +21,29 @@ export function ChatList() {
   // Сортировка — в useMemo по стабильной ссылке на chats, а не в селекторе (новый массив на каждый вызов).
   const sorted = useMemo(() => selectChatList({ chats }), [chats]);
 
+  const retryNotice = recentStatus === 'failed' && (
+    <div className="chat-list__notice" role="alert">
+      <span>Не удалось загрузить чаты</span>
+      <Button variant="secondary" onClick={onRetryRecent}>
+        Повторить
+      </Button>
+    </div>
+  );
+
   if (sorted.length === 0) {
+    if (recentStatus === 'failed') return <div className="chat-list">{retryNotice}</div>;
     return (
-      <p className="chat-list__empty">
-        Чатов пока нет. Введите номер телефона выше, чтобы начать переписку.
+      <p className="chat-list__empty" aria-live="polite">
+        {recentStatus === 'loading' || recentStatus === null
+          ? 'Загружаем чаты…'
+          : 'Чатов пока нет. Введите номер телефона выше, чтобы начать переписку.'}
       </p>
     );
   }
 
   return (
     <nav className="chat-list" aria-label="Список чатов">
+      {retryNotice}
       <ul>
         {sorted.map((chat) => {
           const list = messages[chat.id];

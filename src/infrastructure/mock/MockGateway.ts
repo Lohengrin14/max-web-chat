@@ -10,7 +10,7 @@
  * - номер, оканчивающийся на 0000, считается незарегистрированным в MAX;
  * - сообщение со словом «ошибка» получает статус failed.
  */
-import { toChatId, type ChatId, type ConnectionState, type MessengerEvent } from '@/domain/models';
+import { toChatId, type ChatId, type ConnectionState, type HistoryBatch, type MessengerEvent } from '@/domain/models';
 import type {
   ContactLookupResult,
   GatewayCapabilities,
@@ -45,6 +45,17 @@ export class MockGateway implements MessengerGateway {
   async getConnectionState(): Promise<ConnectionState> {
     await delay(this.ms(400));
     return 'ready';
+  }
+
+  /** У мока нет сервера с историей: каждая демо-сессия начинается с чистого листа. */
+  async loadRecent(): Promise<HistoryBatch> {
+    await delay(this.ms(300));
+    return { chats: [], messages: [] };
+  }
+
+  async loadChatHistory(): Promise<HistoryBatch> {
+    await delay(this.ms(300));
+    return { chats: [], messages: [] };
   }
 
   async findContactByPhone(phone: string): Promise<ContactLookupResult> {

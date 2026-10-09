@@ -12,6 +12,7 @@
 import { Fragment, useLayoutEffect, useRef } from 'react';
 import type { ChatId, Message } from '@/domain/models';
 import { StatusTicks } from '@/ui/StatusTicks';
+import type { LoadStatus } from '../model/chatState';
 import { useChatStore } from '../model/chatStore';
 import { formatDay, formatTime, isSameDay, unsupportedLabel } from './format';
 
@@ -23,7 +24,14 @@ function sameStack(a: Message | undefined, b: Message | undefined): boolean {
   return !!a && !!b && a.direction === b.direction && isSameDay(a.timestamp, b.timestamp);
 }
 
-export function MessageList({ chatId }: { chatId: ChatId }) {
+interface MessageListProps {
+  chatId: ChatId;
+  /** Состояние загрузки истории с сервера; undefined — ещё не запрашивалась. */
+  historyStatus: LoadStatus | undefined;
+  onRetryHistory: () => void;
+}
+
+export function MessageList({ chatId, historyStatus, onRetryHistory }: MessageListProps) {
   const messages = useChatStore((s) => s.messages[chatId] ?? EMPTY);
   const scrollRef = useRef<HTMLDivElement>(null);
   const stickToBottom = useRef(true);
@@ -42,9 +50,25 @@ export function MessageList({ chatId }: { chatId: ChatId }) {
 
   return (
     <div className="messages" ref={scrollRef} onScroll={handleScroll} role="log" aria-live="polite" aria-label="Сообщения" tabIndex={0}>
+      {historyStatus === 'failed' && (
+        <div className="messages__history">
+          <button type="button" className="capsule capsule--action" onClick={onRetryHistory}>
+            Не удалось загрузить историю · Повторить
+          </button>
+        </div>
+      )}
+      {historyStatus === 'loading' && messages.length > 0 && (
+        <div className="messages__history">
+          <span className="capsule">Загружаем историю…</span>
+        </div>
+      )}
       {messages.length === 0 ? (
         <div className="messages__empty">
-          <span className="capsule">Сообщений пока нет. Напишите первым!</span>
+          <span className="capsule">
+            {historyStatus === 'loading' || historyStatus === undefined
+              ? 'Загружаем историю…'
+              : 'Сообщений пока нет. Напишите первым!'}
+          </span>
         </div>
       ) : (
         <ol className="messages__list">

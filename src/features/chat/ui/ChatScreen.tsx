@@ -17,6 +17,7 @@ import { Avatar } from '@/ui/Avatar';
 import { Button } from '@/ui/Button';
 import { ChatBubbleIcon, ChatsIcon, LogoutIcon } from '@/ui/icons';
 import { useMessengerSync } from '../hooks/useMessengerSync';
+import { useRecentChats } from '../hooks/useRecentChats';
 import type { SyncIssue } from '../model/chatState';
 import { ChatStoreContext, createChatStore, useChatActions, useChatStore } from '../model/chatStore';
 import { ChatList } from './ChatList';
@@ -41,6 +42,7 @@ function useInstanceLabel(): string {
 
 function ChatLayout() {
   const { retry } = useMessengerSync();
+  const { retry: retryRecent } = useRecentChats();
   const activeChatId = useChatStore((s) => s.activeChatId);
 
   return (
@@ -50,7 +52,7 @@ function ChatLayout() {
         <SidebarHeader />
         <ConnectionBanner onRetry={retry} />
         <NewChatForm />
-        <ChatList />
+        <ChatList onRetryRecent={retryRecent} />
       </aside>
       <main className="pane">
         {activeChatId ? (
