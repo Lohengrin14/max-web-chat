@@ -11,6 +11,8 @@
 
 Без аккаунта GREEN-API приложение проверяется в демо-режиме: кнопка на экране входа, реализация — `src/infrastructure/mock/MockGateway.ts`.
 
+Деплой — GitHub Pages: push в `main` запускает `.github/workflows/deploy.yml` (тесты → сборка → публикация).
+
 ## Архитектура
 Порты и адаптеры. Импорты из `src` — через алиас `@/`.
 - `domain/` — модели, порты (`MessengerGateway`, `NotificationSource`, `CredentialsStore`), доменные ошибки. Без React и без GREEN-API.
@@ -32,6 +34,7 @@
 - Состояние чатов — чистые функции в `features/chat/model/` (`messages`, `chats`, `sync`, `chatState`); `chatStore.ts` только вызывает их. Сообщения — upsert по id, статус только растёт (`mergeStatus`), `failed` финален.
 - Лимиты API: CheckAccount — только по явному действию пользователя, не на ввод; GetChatHistory — один раз на чат. Лимиты для UI берутся из `gateway.capabilities`, не хардкодятся.
 - TypeScript strict с `noUncheckedIndexedAccess`; `any` не используется.
+- Пути к файлам из `public/` — через `import.meta.env.BASE_URL`, не `"/file"`: на GitHub Pages сайт живёт по подпути (`BASE_PATH` в workflow).
 - Стили — `Foo.css` рядом с `Foo.tsx`, импортируется самим компонентом. Цвета — только переменные из `app/styles/tokens.css`, тёмная тема — `:root[data-theme='dark']`. UI-библиотек нет, иконки — inline SVG в `ui/icons.tsx`.
 
 ## Как добавлять

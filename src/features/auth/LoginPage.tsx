@@ -73,7 +73,8 @@ export function LoginPage() {
     <main className="login">
       <div className="login__card">
         <header className="login__header">
-          <img src="/favicon.svg" alt="" width={56} height={56} />
+          {/* Через BASE_URL: на GitHub Pages сайт живёт по подпути, и "/favicon.svg" не найдётся. */}
+          <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={56} height={56} />
           <h1 className="login__title">Войдите в MAX Web Chat</h1>
           <p className="login__subtitle">
             Укажите параметры{" "}
