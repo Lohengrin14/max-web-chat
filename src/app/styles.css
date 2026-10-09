@@ -1073,10 +1073,24 @@ textarea {
   margin: 8px 0;
 }
 
+/* Прилипшая к верху дата видна только при прокрутке или движении мыши над чатом. */
+.messages__day .capsule {
+  transition: opacity 0.3s ease;
+}
+
+.messages__day--stuck .capsule {
+  opacity: 0;
+}
+
+.messages--show-day .messages__day--stuck .capsule {
+  opacity: 1;
+  transition-duration: 0.15s;
+}
+
 .message {
   display: flex;
   flex-direction: column;
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .message--stack-above {
@@ -1218,9 +1232,8 @@ textarea {
   outline: none;
   background: transparent;
   resize: none;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 20px;
-  caret-color: var(--themed);
   overflow-y: auto;
 }
 
