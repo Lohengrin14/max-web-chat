@@ -30,6 +30,8 @@
   --icon-tertiary: #0607087a;
   --ghost-hover: #0d0d0d0a;
   --ghost-pressed: #0d0d0d14;
+  /* Форма подсветки кнопок-иконок при наведении. */
+  --ghost-radius: 50%;
 
   /* Акцент */
   --themed: #007aff;
@@ -286,7 +288,8 @@ textarea {
   width: 40px;
   min-height: 40px;
   padding: 0;
-  border-radius: var(--radius-m);
+  /* Подсветка при наведении — круг вокруг иконки, а не квадрат. */
+  border-radius: var(--ghost-radius);
   background: transparent;
   color: var(--icon-secondary);
 }
@@ -717,7 +720,6 @@ textarea {
   width: 32px;
   min-height: 32px;
   margin-right: 4px;
-  border-radius: 10px;
   color: var(--themed);
 }
 
@@ -763,7 +765,6 @@ textarea {
   width: 28px;
   min-height: 28px;
   margin-top: -4px;
-  border-radius: 8px;
 }
 
 .status-hint__text {
