@@ -44,7 +44,11 @@ export function ChatWindow({ chatId }: { chatId: ChatId }) {
           <p className="chat__subtitle">{subtitle}</p>
         </div>
       </header>
-      <div className="chat__body" style={{ '--composer-height': `${composerHeight}px` } as CSSProperties}>
+      {/* До первого измерения переменную не задаём — сработает запасное значение из CSS, а не 0. */}
+      <div
+        className="chat__body"
+        style={composerHeight > 0 ? ({ '--composer-height': `${composerHeight}px` } as CSSProperties) : undefined}
+      >
         <MessageList chatId={chatId} historyStatus={history.status} onRetryHistory={history.retry} />
         <div className="chat__composer" ref={composerRef}>
           <Composer onSend={(text) => void send(chatId, text)} maxLength={maxLength} />

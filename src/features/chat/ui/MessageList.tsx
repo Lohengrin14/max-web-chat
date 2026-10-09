@@ -64,6 +64,24 @@ export function MessageList({ chatId, historyStatus, onRetryHistory }: MessageLi
 
   useEffect(() => () => window.clearTimeout(hideDayTimer.current), []);
 
+  // Размеры ленты меняются и после первой прокрутки: поле ввода измеряет свою высоту и
+  // увеличивает отступ снизу, подгружается история, растёт многострочный ввод. Если
+  // пользователь был внизу, снова докручиваем до конца — иначе последние сообщения
+  // оказываются под полем ввода. Листающего историю вверх не трогаем.
+  const hasMessages = messages.length > 0;
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const keepAtBottom = () => {
+      if (stickToBottom.current) el.scrollTop = el.scrollHeight;
+    };
+    const observer = new ResizeObserver(keepAtBottom);
+    observer.observe(el);
+    const list = el.querySelector('.messages__list');
+    if (list) observer.observe(list);
+    return () => observer.disconnect();
+  }, [hasMessages]);
+
   function markStuckDays() {
     scrollRef.current
       ?.querySelectorAll<HTMLElement>('.messages__day')
