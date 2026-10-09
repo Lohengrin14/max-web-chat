@@ -1184,7 +1184,8 @@ textarea {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  padding: 0 6px 0 16px;
+  /* Симметрично: кнопка отправки отстоит от правого края так же, как текст — от левого. */
+  padding: 0 16px;
   border-radius: var(--radius-l);
   background: var(--float);
   box-shadow: var(--shadow-float);
