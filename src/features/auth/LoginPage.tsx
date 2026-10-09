@@ -8,6 +8,7 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 import { Alert } from "@/ui/Alert";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
+import { isSecureApiUrl } from "@/shared/url";
 import { useSession } from "./SessionProvider";
 import "./LoginPage.css";
 
@@ -18,7 +19,7 @@ type FieldErrors = Partial<Record<Field, string>>;
 function validate(values: Record<Field, string>): FieldErrors {
   const errors: FieldErrors = {};
   if (!values.apiUrl) errors.apiUrl = "Укажите apiUrl";
-  else if (!/^https?:\/\/[^\s/]+/i.test(values.apiUrl))
+  else if (!isSecureApiUrl(values.apiUrl))
     errors.apiUrl = "Адрес должен начинаться с https://";
   if (!values.instanceId) errors.instanceId = "Укажите idInstance";
   else if (!/^\d+$/.test(values.instanceId))

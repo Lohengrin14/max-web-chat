@@ -13,6 +13,7 @@
 import { z } from 'zod';
 import type { SessionConfig } from '@/domain/models';
 import type { CredentialsStore } from '@/domain/ports';
+import { isSecureApiUrl } from '@/shared/url';
 
 const STORAGE_KEY = 'max-web-chat:session';
 
@@ -20,7 +21,8 @@ const sessionSchema = z.discriminatedUnion('mode', [
   z.object({
     mode: z.literal('live'),
     credentials: z.object({
-      apiUrl: z.string().min(1),
+      // Сессию с http-адресом (сохранённую старой версией) не восстанавливаем: токен ушёл бы открытым текстом.
+      apiUrl: z.string().refine(isSecureApiUrl),
       instanceId: z.string().min(1),
       apiToken: z.string().min(1),
     }),
