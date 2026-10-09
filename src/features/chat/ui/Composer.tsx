@@ -7,7 +7,7 @@
  * - Высота растёт по содержимому до предела, дальше появляется прокрутка.
  * - Лимит длины приходит из возможностей шлюза; счётчик появляется при приближении к нему.
  */
-import { useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type MouseEvent } from 'react';
 import { Button } from '@/ui/Button';
 import { SendIcon } from '@/ui/icons';
 
@@ -60,6 +60,25 @@ export function Composer({ onSend, maxLength }: ComposerProps) {
     submit();
   }
 
+  /**
+   * Клик по карточке мимо текстового поля (отступы, промежуток у кнопки) ставит курсор
+   * в конец текста. Без этого фокус не переходил в поле или курсор оказывался в начале.
+   * Клики по самому полю и по кнопке отправки работают как обычно.
+   */
+  function handleCardMouseDown(event: MouseEvent<HTMLDivElement>) {
+    const textarea = ref.current;
+    if (!textarea || event.button !== 0) return;
+    const target = event.target as HTMLElement;
+    if (target === textarea || target.closest('button')) return;
+    // Не даём браузеру увести фокус или выделение на саму карточку.
+    event.preventDefault();
+    textarea.focus();
+    const end = textarea.value.length;
+    textarea.setSelectionRange(end, end);
+    // Для многострочного текста — показать конец, а не начало.
+    textarea.scrollTop = textarea.scrollHeight;
+  }
+
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     submit();
@@ -68,7 +87,7 @@ export function Composer({ onSend, maxLength }: ComposerProps) {
   return (
     <form className="composer" onSubmit={handleSubmit}>
       {/* Плавающая карточка ввода поверх фона чата — как панель ввода в MAX. */}
-      <div className="composer__card">
+      <div className="composer__card" onMouseDown={handleCardMouseDown}>
         <label htmlFor="composer-input" className="visually-hidden">
           Сообщение
         </label>
