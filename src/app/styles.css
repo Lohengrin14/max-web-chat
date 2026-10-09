@@ -298,6 +298,11 @@ textarea {
   background: var(--ghost-pressed);
 }
 
+.btn--icon .btn__label {
+  /* Иначе строчный span выравнивает иконку по базовой линии текста и поднимает её на пару пикселей. */
+  display: flex;
+}
+
 .btn--icon.btn--loading .btn__label {
   display: none;
 }

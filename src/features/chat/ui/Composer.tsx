@@ -93,7 +93,7 @@ export function Composer({ onSend, maxLength }: ComposerProps) {
             При превышении лимита остаётся видимой, но неактивной — рядом счётчик объясняет почему. */}
         {hasText && (
           <Button type="submit" variant="icon" className="composer__send" disabled={!canSend} aria-label="Отправить" title="Отправить (Enter)">
-            <SendIcon width={22} height={22} />
+            <SendIcon width={25} height={25} />
           </Button>
         )}
       </div>
