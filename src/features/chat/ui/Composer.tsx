@@ -10,6 +10,7 @@
 import { useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type MouseEvent } from 'react';
 import { Button } from '@/ui/Button';
 import { SendIcon } from '@/ui/icons';
+import './Composer.css';
 
 interface ComposerProps {
   onSend: (text: string) => void;

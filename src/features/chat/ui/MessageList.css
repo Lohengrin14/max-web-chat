@@ -1,0 +1,69 @@
+.messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* Снизу — место под плавающее поле ввода: последнее сообщение видно над ним. */
+  padding: 8px var(--chat-gutter) calc(var(--composer-height, 76px) + 12px);
+  /* Место под полосу прокрутки резервируется симметрично, чтобы колонка ленты
+     оставалась на одной оси с полем ввода. */
+  scrollbar-gutter: stable both-edges;
+  /* Лента растёт снизу вверх, как в MAX: сообщения прижаты к полю ввода. */
+  display: flex;
+  flex-direction: column;
+}
+
+.messages:focus-visible {
+  outline-offset: -2px;
+}
+
+.messages__empty {
+  margin: auto;
+}
+
+.messages__history {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.capsule--action {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.messages__list {
+  list-style: none;
+  /* margin-top: auto прижимает короткую ленту к низу; длинная прокручивается как обычно.
+     justify-content: flex-end здесь не подходит — он ломает прокрутку к началу истории. */
+  margin: auto auto 0;
+  padding: 0;
+  width: 100%;
+  max-width: var(--chat-column);
+  display: flex;
+  flex-direction: column;
+}
+
+.messages__day {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  align-self: center;
+  margin: 8px 0;
+}
+
+/* Прилипшая к верху дата видна только при прокрутке или движении мыши над чатом. */
+.messages__day .capsule {
+  transition: opacity 0.3s ease;
+}
+
+.messages__day--stuck .capsule {
+  opacity: 0;
+}
+
+.messages--show-day .messages__day--stuck .capsule {
+  opacity: 1;
+  transition-duration: 0.15s;
+}

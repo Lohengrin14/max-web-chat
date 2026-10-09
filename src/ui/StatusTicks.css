@@ -1,0 +1,9 @@
+.ticks {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-tertiary);
+}
+
+.ticks--failed {
+  color: var(--negative);
+}

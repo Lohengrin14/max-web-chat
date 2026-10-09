@@ -1,8 +1,8 @@
 /**
- * Форматирование для интерфейса чатов: время, дни, превью, заголовки.
+ * Форматирование для интерфейса чатов: время, дни, заголовки.
  * Чистые функции — их легко переиспользовать и менять локаль в одном месте.
  */
-import type { Chat, MessageContent, UnsupportedContentKind } from '@/domain/models';
+import type { Chat } from '@/domain/models';
 import { formatPhone } from '@/shared/phone';
 
 const LOCALE = 'ru-RU';
@@ -42,28 +42,6 @@ export function formatListTime(ts: number, now = Date.now()): string {
   if (diffDays === 0) return formatTime(ts);
   if (diffDays < 7) return weekdayFormat.format(ts);
   return shortDateFormat.format(ts);
-}
-
-const UNSUPPORTED_LABELS: Record<UnsupportedContentKind, string> = {
-  image: 'Фото',
-  video: 'Видео',
-  audio: 'Аудио',
-  document: 'Документ',
-  sticker: 'Стикер',
-  location: 'Геолокация',
-  contact: 'Контакт',
-  reaction: 'Реакция',
-  other: 'Сообщение',
-};
-
-export function unsupportedLabel(kind: UnsupportedContentKind): string {
-  return UNSUPPORTED_LABELS[kind];
-}
-
-/** Одна строка для превью в списке чатов. */
-export function contentPreview(content: MessageContent): string {
-  if (content.kind === 'text') return content.text.replace(/\s+/g, ' ');
-  return unsupportedLabel(content.contentKind);
 }
 
 /** Имя чата: имя контакта → номер → id. */

@@ -1,0 +1,161 @@
+/*
+ * Токены дизайна в визуальном языке веб-версии MAX (web.max.ru, тема «space»).
+ *
+ * Значения токенов — палитра, радиусы, типографика и размеры колонок — сверены с
+ * CSS-переменными web.max.ru. Все цвета заданы переменными в :root, тёмная тема
+ * переопределяет только их (prefers-color-scheme). Смена темы — правка этого файла,
+ * без изменений в компонентах. Фирменную графику MAX (логотип, узор обоев) не
+ * используем: узор фона чата нарисован свой.
+ *
+ * Стили компонентов лежат рядом с компонентами и импортируются ими самими.
+ */
+
+:root {
+  --font: -apple-system, BlinkMacSystemFont, 'Roboto', system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  /* Поверхности */
+  --bg-primary: #ffffff;
+  --bg-surface: #edeef2;
+  --bg-secondary: #f5f7fa;
+  --bg-card-hover: #f6f6f6;
+  --bg-card-pressed: #ececee;
+  --bg-card-selected: #007aff14;
+  --input-bg: #09090914;
+  --divider: #0c0d0e0f;
+  --divider-strong: #0c0d0e29;
+
+  /* Текст и иконки */
+  --text-primary: #060708;
+  --text-secondary: #060708ad;
+  --text-tertiary: #06070885;
+  --icon-secondary: #060708a3;
+  --icon-tertiary: #0607087a;
+  --ghost-hover: #0d0d0d0a;
+  --ghost-pressed: #0d0d0d14;
+  /* Форма подсветки кнопок-иконок при наведении. */
+  --ghost-radius: 50%;
+
+  /* Акцент */
+  --themed: #007aff;
+  --themed-hover: #479fff;
+  --themed-pressed: #006ee5;
+  --themed-fade: #007aff29;
+  --on-themed: #ffffff;
+  --counter: #007aff;
+  --negative: #ff303c;
+  --negative-fade: #ff303c1f;
+  --attention-text: #8a6d00;
+  --attention-fade: #ffcc0029;
+
+  /* Фон чата (тема «space») */
+  /* Сверху светлее, книзу темнее и насыщеннее синим. */
+  --chat-bg-1: #7fc6e3;
+  --chat-bg-2: #5c9df0;
+  --chat-pattern: #007aff4d;
+  --capsule: #0f8ec285;
+  --on-capsule: #ffffff;
+
+  /* Пузыри */
+  --bubble-in-1: #ffffff;
+  --bubble-in-2: #ffffff;
+  --bubble-in-3: #ffffff;
+  --bubble-in-text: #060708;
+  --bubble-in-time: #06070885;
+  --bubble-in-author: #0784b8;
+  --bubble-out-1: #e9fdff;
+  --bubble-out-2: #e9fdff;
+  --bubble-out-3: #e9fdff;
+  --bubble-out-text: #011c29;
+  --bubble-out-time: #0784b8;
+  --bubble-out-status: #0f8ec2;
+
+  /* Плавающие панели */
+  --float: #ffffff;
+  --shadow-float: 0 4px 16px #00000014, 0 0 2px #00000014;
+
+  /* Аватары: градиенты из палитры MAX */
+  --avatar-0: linear-gradient(135deg, #08d7f3, #5398ff);
+  --avatar-1: linear-gradient(135deg, #14e1d5, #03c722);
+  --avatar-2: linear-gradient(135deg, #ff48b6, #ff8a35);
+  --avatar-3: linear-gradient(135deg, #ffc93d, #ff832a);
+  --avatar-4: linear-gradient(135deg, #bf97ff, #526eff);
+  --avatar-5: linear-gradient(135deg, #da9ef1, #a666bd);
+
+  /* Метрики */
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --rail-width: 77px;
+  --sidebar-width: 393px;
+  /* Общая колонка ленты и поля ввода: правый край исходящих совпадает с краем поля ввода. */
+  --chat-column: 760px;
+  /* 24px — отступ панели ввода от краёв области чата, как в MAX; лента выровнена по нему. */
+  --chat-gutter: 24px;
+
+  /* Собственный узор фона чата: маска, окрашиваемая через --chat-pattern. */
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='22' cy='24' r='6'/%3E%3Cpath d='M96 12l3.4 7.6 8.3.9-6.2 5.6 1.8 8.2-7.3-4.2-7.3 4.2 1.8-8.2-6.2-5.6 8.3-.9z' transform='rotate(14 96 22)'/%3E%3Cg transform='rotate(-24 150 44)'%3E%3Cellipse cx='150' cy='44' rx='14' ry='4.5'/%3E%3Ccircle cx='150' cy='44' r='7.5'/%3E%3C/g%3E%3Cpath d='M48 78a12 12 0 1 0 12 15 9.5 9.5 0 1 1-12-15z'/%3E%3Cpath d='M118 86v10M113 91h10'/%3E%3Ccircle cx='82' cy='132' r='2.4'/%3E%3Cg transform='rotate(-35 26 142)'%3E%3Cpath d='M16 142h18l-6-6M34 142l-6 6'/%3E%3C/g%3E%3Crect x='132' y='122' width='20' height='14' rx='4.5' transform='rotate(12 142 129)'/%3E%3Ccircle cx='168' cy='96' r='2'/%3E%3Ccircle cx='58' cy='170' r='2'/%3E%3Cpath d='M104 166c5-7 12-7 17 0' /%3E%3Cpath d='M164 160l3 5 5 1-4 3 1 5-5-3-5 3 1-5-4-3 5-1z'/%3E%3C/svg%3E");
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #17181c;
+    --bg-surface: #0f0f12;
+    --bg-secondary: #25262d;
+    --bg-card-hover: #32343d;
+    --bg-card-pressed: #1f2026;
+    --bg-card-selected: #2c2d37;
+    --input-bg: #ffffff17;
+    --divider: #ffffff0f;
+    --divider-strong: #ffffff1f;
+
+    --text-primary: #ffffff;
+    --text-secondary: #ffffffcc;
+    --text-tertiary: #ffffffa3;
+    --icon-secondary: #ffffffad;
+    --icon-tertiary: #ffffff85;
+    --ghost-hover: #e7e7e70a;
+    --ghost-pressed: #e7e7e714;
+
+    --negative: #ce4257;
+    --negative-fade: #ce425729;
+    --attention-text: #ffd60a;
+    --attention-fade: #ffd60a1f;
+
+    --chat-bg-1: #141414;
+    --chat-bg-2: #141414;
+    --chat-pattern: #505bc74d;
+    --capsule: #282c42b2;
+
+    --bubble-in-1: #3b3f5e;
+    --bubble-in-2: #373a4e;
+    --bubble-in-3: #32343d;
+    --bubble-in-text: #ffffff;
+    --bubble-in-time: #ffffffa3;
+    --bubble-in-author: #ffffff;
+    --bubble-out-1: #8849b4;
+    --bubble-out-2: #735acd;
+    --bubble-out-3: #5d6ae5;
+    --bubble-out-text: #ffffff;
+    --bubble-out-time: #ffffffa3;
+    --bubble-out-status: #ffffffe0;
+
+    --float: #25262d;
+    --shadow-float: 0 4px 16px #0000004d, 0 0 2px #0000004d;
+
+    color-scheme: dark;
+  }
+}
+
+@media (max-width: 1100px) {
+  :root {
+    --sidebar-width: 340px;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --chat-gutter: 8px;
+  }
+}

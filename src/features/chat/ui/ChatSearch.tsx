@@ -3,6 +3,7 @@
  * (см. searchChats); фильтрует список на ввод — запросов к API нет. Esc очищает поле.
  */
 import { CloseIcon } from '@/ui/icons';
+import './ChatSearch.css';
 
 interface ChatSearchProps {
   value: string;

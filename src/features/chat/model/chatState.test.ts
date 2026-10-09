@@ -1,21 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { toChatId, type Message, type MessengerEvent } from '@/domain/models';
-import {
-  addPendingMessage,
-  applyEvent,
-  applyHistory,
-  checkStalledStatuses,
-  dismissStatusHint,
-  STALLED_STATUS_TIMEOUT_MS,
-  confirmMessage,
-  createInitialChatState,
-  failMessage,
-  mergeStatus,
-  openChat,
-  selectChat,
-  selectChatList,
-  type ChatState,
-} from './chatState';
+import { addPendingMessage, applyEvent, applyHistory } from './chatState';
+import { openChat, selectChat, selectChatList } from './chats';
+import { confirmMessage, failMessage, mergeStatus } from './messages';
+import { createInitialChatState, type ChatState } from './state';
+import { checkStalledStatuses, dismissStatusHint, STALLED_STATUS_TIMEOUT_MS } from './sync';
 
 const CHAT = toChatId('10000000');
 

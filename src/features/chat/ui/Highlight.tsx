@@ -5,6 +5,7 @@
  */
 import type { ReactNode } from 'react';
 import { normalizeSearchText } from '../model/chatSearch';
+import './Highlight.css';
 
 export function Highlight({ text, query }: { text: string; query: string }) {
   const needle = normalizeSearchText(query.trim());

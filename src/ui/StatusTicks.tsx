@@ -9,6 +9,7 @@
  */
 import type { MessageStatus } from '@/domain/models';
 import { AlertIcon, CheckIcon, ClockIcon, DoubleCheckIcon } from './icons';
+import './StatusTicks.css';
 
 const LABELS: Record<MessageStatus, string> = {
   pending: 'Отправляется',

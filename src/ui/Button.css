@@ -1,0 +1,100 @@
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--radius-l);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.btn--primary {
+  background: var(--themed);
+  color: var(--on-themed);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--themed-hover);
+}
+
+.btn--primary:active:not(:disabled) {
+  background: var(--themed-pressed);
+}
+
+.btn--secondary {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-m);
+  background: var(--themed-fade);
+  color: var(--themed);
+  font-size: 15px;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--themed);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background: var(--ghost-hover);
+}
+
+.btn--icon {
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  /* Подсветка при наведении — круг вокруг иконки, а не квадрат. */
+  border-radius: var(--ghost-radius);
+  background: transparent;
+  color: var(--icon-secondary);
+}
+
+.btn--icon:hover:not(:disabled) {
+  background: var(--ghost-hover);
+}
+
+.btn--icon:active:not(:disabled) {
+  background: var(--ghost-pressed);
+}
+
+.btn--icon .btn__label {
+  /* Иначе строчный span выравнивает иконку по базовой линии текста и поднимает её на пару пикселей. */
+  display: flex;
+}
+
+.btn--icon.btn--loading .btn__label {
+  display: none;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2s;
+  }
+}

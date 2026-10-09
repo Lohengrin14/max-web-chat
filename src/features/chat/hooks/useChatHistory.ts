@@ -9,7 +9,7 @@
 import { useCallback, useEffect } from 'react';
 import type { ChatId } from '@/domain/models';
 import { useGateway, useSession } from '@/features/auth/SessionProvider';
-import type { LoadStatus } from '../model/chatState';
+import type { LoadStatus } from '../model/state';
 import { useChatActions, useChatStore, useChatStoreApi } from '../model/chatStore';
 
 export function useChatHistory(chatId: ChatId): { status: LoadStatus | undefined; retry: () => void } {

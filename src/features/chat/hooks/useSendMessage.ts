@@ -9,7 +9,7 @@ import { useCallback } from 'react';
 import { errorMessage } from '@/domain/errors';
 import type { ChatId } from '@/domain/models';
 import { useGateway, useSession } from '@/features/auth/SessionProvider';
-import { STALLED_STATUS_TIMEOUT_MS } from '../model/chatState';
+import { STALLED_STATUS_TIMEOUT_MS } from '../model/sync';
 import { useChatActions } from '../model/chatStore';
 
 let localCounter = 0;

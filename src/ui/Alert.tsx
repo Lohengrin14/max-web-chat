@@ -4,6 +4,7 @@
  */
 import type { ReactNode } from 'react';
 import { AlertIcon } from './icons';
+import './Alert.css';
 
 interface AlertProps {
   tone?: 'error' | 'warning' | 'info';

@@ -1,0 +1,96 @@
+.composer {
+  /* Та же колонка, что у ленты: ширина карточки = --chat-column, отступы = --chat-gutter. */
+  width: 100%;
+  max-width: calc(var(--chat-column) + 2 * var(--chat-gutter));
+  margin: 0 auto;
+  padding: 4px var(--chat-gutter) max(var(--chat-gutter), env(safe-area-inset-bottom));
+}
+
+.composer__card {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  /* Симметрично: кнопка отправки отстоит от правого края так же, как текст — от левого.
+     Компактно, как в MAX: поле 48px, кнопка 36px. */
+  padding: 0 12px;
+  border-radius: var(--radius-l);
+  background: var(--float);
+  box-shadow: var(--shadow-float);
+}
+
+.composer__input {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  min-height: 48px;
+  max-height: 180px;
+  padding: 14px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  resize: none;
+  font-size: 18px;
+  line-height: 20px;
+  overflow-y: auto;
+}
+
+.composer__input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.composer__card:has(.composer__input[aria-invalid='true']) {
+  box-shadow: var(--shadow-float), 0 0 0 1.5px var(--negative);
+}
+
+.composer__counter {
+  align-self: center;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.composer__counter--over {
+  color: var(--negative);
+  font-weight: 500;
+}
+
+/* Кнопка отправки в стиле MAX: синий круг с белой стрелкой, появляется вместе с текстом. */
+.btn.composer__send {
+  flex: none;
+  width: 36px;
+  min-height: 36px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background: var(--themed);
+  color: #fff;
+  cursor: pointer;
+  animation: composer-send-in 0.15s ease-out;
+}
+
+.btn.composer__send:hover:not(:disabled) {
+  background: var(--themed-hover);
+}
+
+.btn.composer__send:active:not(:disabled) {
+  background: var(--themed-pressed);
+}
+
+.btn.composer__send:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+@keyframes composer-send-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn.composer__send {
+    animation: none;
+  }
+}

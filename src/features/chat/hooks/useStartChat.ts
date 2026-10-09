@@ -14,7 +14,7 @@ import { useCallback, useRef, useState } from 'react';
 import { errorMessage } from '@/domain/errors';
 import { useGateway, useSession } from '@/features/auth/SessionProvider';
 import { normalizePhone } from '@/shared/phone';
-import { findChatByPhone } from '../model/chatState';
+import { findChatByPhone } from '../model/chats';
 import { useChatActions, useChatStoreApi } from '../model/chatStore';
 
 const NOT_REGISTERED = 'На этот номер не зарегистрирован MAX';

@@ -9,6 +9,7 @@ import { Alert } from "@/ui/Alert";
 import { Button } from "@/ui/Button";
 import { TextField } from "@/ui/TextField";
 import { useSession } from "./SessionProvider";
+import "./LoginPage.css";
 
 type Field = "apiUrl" | "instanceId" | "apiToken";
 type FieldErrors = Partial<Record<Field, string>>;

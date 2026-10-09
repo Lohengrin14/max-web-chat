@@ -16,10 +16,11 @@
  */
 import { Fragment, useEffect, useLayoutEffect, useRef } from 'react';
 import type { ChatId, Message } from '@/domain/models';
-import { StatusTicks } from '@/ui/StatusTicks';
-import type { LoadStatus } from '../model/chatState';
+import type { LoadStatus } from '../model/state';
 import { useChatStore } from '../model/chatStore';
-import { formatDay, formatTime, isSameDay, unsupportedLabel } from './format';
+import { formatDay, isSameDay } from './format';
+import { MessageBubble } from './MessageBubble';
+import './MessageList.css';
 
 const EMPTY: Message[] = [];
 /** Насколько близко к низу (px) считается «пользователь внизу». */
@@ -155,44 +156,5 @@ export function MessageList({ chatId, historyStatus, onRetryHistory }: MessageLi
         </ol>
       )}
     </div>
-  );
-}
-
-interface MessageBubbleProps {
-  message: Message;
-  stackedAbove: boolean;
-  stackedBelow: boolean;
-}
-
-function MessageBubble({ message, stackedAbove, stackedBelow }: MessageBubbleProps) {
-  const outgoing = message.direction === 'outgoing';
-  const classes = [
-    'message',
-    outgoing ? 'message--out' : 'message--in',
-    stackedAbove ? 'message--stack-above' : '',
-    stackedBelow ? 'message--stack-below' : '',
-    message.status === 'failed' ? 'message--failed' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  return (
-    <li className={classes}>
-      <div className="bubble">
-        {message.senderName && !outgoing && !stackedAbove && <span className="bubble__author">{message.senderName}</span>}
-        {message.content.kind === 'text' ? (
-          <p className="bubble__text">{message.content.text}</p>
-        ) : (
-          <p className="bubble__text bubble__text--muted">
-            {unsupportedLabel(message.content.contentKind)} — этот тип сообщений пока не поддерживается
-          </p>
-        )}
-        <span className="bubble__meta">
-          <time dateTime={new Date(message.timestamp).toISOString()}>{formatTime(message.timestamp)}</time>
-          {outgoing && message.status && <StatusTicks status={message.status} error={message.error} />}
-        </span>
-      </div>
-      {message.status === 'failed' && message.error && <span className="message__error">{message.error}</span>}
-    </li>
   );
 }

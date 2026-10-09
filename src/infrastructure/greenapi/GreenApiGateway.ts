@@ -2,7 +2,7 @@
  * Реализация MessengerGateway поверх GREEN-API для мессенджера MAX.
  *
  * Шлюз собирает вызовы методов API (GetStateInstance, CheckAccount, SendMessage) и
- * переводит уведомления источника в доменные события через `mappers.ts`. О токене и
+ * переводит уведомления источника в доменные события через `mappers/`. О токене и
  * формате URL он не знает — это забота HttpClient; о способе доставки уведомлений
  * тоже — это NotificationSource. Поэтому замена транспорта или вынос токена на сервер
  * не затрагивает этот класс.
@@ -20,7 +20,9 @@ import type {
 import { createSharedSubscription } from '../common/sharedSubscription';
 import { HttpClient, type FetchFn } from '../http/HttpClient';
 import { HttpPollingSource } from './HttpPollingSource';
-import { buildHistoryBatch, mapConnectionState, mapNotification } from './mappers';
+import { mapConnectionState } from './mappers/connection';
+import { buildHistoryBatch } from './mappers/journal';
+import { mapNotification } from './mappers/notifications';
 import {
   checkAccountResponseSchema,
   contactsResponseSchema,

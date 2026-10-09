@@ -1,0 +1,37 @@
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-m);
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.alert__icon {
+  flex: none;
+}
+
+.alert__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert__action {
+  align-self: center;
+}
+
+.alert--error {
+  background: var(--negative-fade);
+  color: var(--negative);
+}
+
+.alert--warning {
+  background: var(--attention-fade);
+  color: var(--attention-text);
+}
+
+.alert--info {
+  background: var(--themed-fade);
+  color: var(--themed);
+}

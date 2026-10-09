@@ -1,0 +1,19 @@
+/* Каркас: навигация | список чатов | чат. На узких экранах — либо список, либо чат. */
+
+.shell {
+  height: 100%;
+  display: grid;
+  grid-template-columns: var(--rail-width) var(--sidebar-width) minmax(0, 1fr);
+  background: var(--bg-primary);
+}
+
+@media (max-width: 760px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .shell[data-view='chat'] .sidebar,
+  .shell[data-view='list'] .pane {
+    display: none;
+  }
+}

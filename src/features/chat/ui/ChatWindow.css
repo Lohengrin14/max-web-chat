@@ -1,0 +1,75 @@
+.chat {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Лента на всю высоту, поле ввода — поверх неё у нижнего края. */
+.chat__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat__composer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Прозрачные поля вокруг карточки не должны перехватывать клики и прокрутку ленты. */
+  pointer-events: none;
+}
+
+.chat__composer .composer__card {
+  pointer-events: auto;
+}
+
+.chat__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 16px;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--divider);
+}
+
+.chat__back {
+  margin-left: -8px;
+  /* Цвет постоянный; при наведении меняется только фон (общее правило .btn--icon:hover). */
+  color: var(--icon-secondary);
+}
+
+.chat__heading {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat__title {
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat__subtitle {
+  font-size: 13px;
+  line-height: 16px;
+  letter-spacing: 0.2px;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 760px) {
+  .chat__header {
+    padding: 8px 12px;
+    min-height: 56px;
+  }
+}

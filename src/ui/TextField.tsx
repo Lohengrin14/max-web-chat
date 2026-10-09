@@ -3,6 +3,7 @@
  * подсказка и ошибка — через aria-describedby, чтобы их зачитывал скринридер.
  */
 import { useId, type InputHTMLAttributes } from 'react';
+import './TextField.css';
 
 interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id'> {
   label: string;

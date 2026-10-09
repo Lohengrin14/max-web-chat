@@ -9,6 +9,7 @@
 import { Button } from '@/ui/Button';
 import { CloseIcon } from '@/ui/icons';
 import { useChatActions, useChatStore } from '../model/chatStore';
+import './StatusHint.css';
 
 /** Документация по вебхукам (раздел о настройках уведомлений инстанса). */
 const WEBHOOKS_DOCS_URL = 'https://green-api.com/v3/docs/api/marks/ReadChat/';

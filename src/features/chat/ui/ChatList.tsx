@@ -11,10 +11,12 @@ import { Avatar } from '@/ui/Avatar';
 import { Button } from '@/ui/Button';
 import { StatusTicks } from '@/ui/StatusTicks';
 import { searchChats } from '../model/chatSearch';
-import { selectChatList } from '../model/chatState';
+import { selectChatList } from '../model/chats';
 import { useChatActions, useChatStore } from '../model/chatStore';
-import { chatTitle, contentPreview, formatListTime } from './format';
+import { contentPreview } from './content/preview';
+import { chatTitle, formatListTime } from './format';
 import { Highlight } from './Highlight';
+import './ChatList.css';
 
 export function ChatList({ query, onRetryRecent }: { query: string; onRetryRecent: () => void }) {
   const chats = useChatStore((s) => s.chats);

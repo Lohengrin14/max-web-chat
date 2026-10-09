@@ -1,5 +1,6 @@
 /**
- * zustand-хранилище чатов — тонкая обёртка над чистыми функциями из `chatState.ts`.
+ * zustand-хранилище чатов — тонкая обёртка над чистыми функциями переходов
+ * (`chatState.ts`, `messages.ts`, `chats.ts`, `sync.ts`).
  *
  * Хранилище создаётся на каждую сессию (а не глобальным синглтоном) и раздаётся через
  * контекст: при выходе из аккаунта оно уничтожается вместе с экраном, и переписка одного
@@ -10,25 +11,18 @@ import { createContext, useContext } from 'react';
 import { useStore } from 'zustand';
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import type { ChatId, ChatInfo, ConnectionState, HistoryBatch, MessengerEvent } from '@/domain/models';
+import { addPendingMessage, applyEvent, applyHistory } from './chatState';
+import { openChat, selectChat } from './chats';
+import { confirmMessage, failMessage } from './messages';
+import { createInitialChatState, type ChatState, type LoadStatus, type SyncIssue } from './state';
 import {
-  addPendingMessage,
-  applyEvent,
-  applyHistory,
   checkStalledStatuses,
   dismissStatusHint,
-  confirmMessage,
-  createInitialChatState,
-  failMessage,
-  openChat,
-  selectChat,
   setConnection,
   setHistoryStatus,
   setRecentStatus,
   setSyncIssue,
-  type ChatState,
-  type LoadStatus,
-  type SyncIssue,
-} from './chatState';
+} from './sync';
 
 export interface ChatActions {
   applyEvent(event: MessengerEvent): void;

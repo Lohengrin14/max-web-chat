@@ -3,6 +3,7 @@
  * В состоянии загрузки кнопка заблокирована и объявляет занятость через aria-busy.
  */
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import './Button.css';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'icon';

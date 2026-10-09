@@ -1,0 +1,129 @@
+.chat-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 8px 8px;
+}
+
+.chat-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chat-list__notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 8px;
+  padding: 8px 8px 8px 12px;
+  border-radius: var(--radius-m);
+  background: var(--negative-fade);
+  color: var(--negative);
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.chat-list__empty {
+  padding: 32px 24px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--text-tertiary);
+}
+
+.chat-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 8px;
+  border: 0;
+  border-radius: var(--radius-l);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chat-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.chat-item:active {
+  background: var(--bg-card-pressed);
+}
+
+.chat-item[aria-current='true'] {
+  background: var(--bg-card-selected);
+}
+
+.chat-item__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat-item__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-item__title {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-item__time {
+  flex: none;
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--text-tertiary);
+}
+
+.chat-item__preview {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--text-tertiary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.chat-item__preview .ticks {
+  color: var(--themed);
+}
+
+.chat-item__preview .ticks--failed {
+  color: var(--negative);
+}
+
+.chat-item__badge {
+  flex: none;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 9999px;
+  background: var(--counter);
+  color: #fff;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  display: inline-grid;
+  place-items: center;
+}

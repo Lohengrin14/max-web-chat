@@ -19,6 +19,7 @@ import { useChatActions, useChatStore } from '../model/chatStore';
 import { Composer } from './Composer';
 import { MessageList } from './MessageList';
 import { chatTitle } from './format';
+import './ChatWindow.css';
 
 export function ChatWindow({ chatId }: { chatId: ChatId }) {
   const chat = useChatStore((s) => s.chats[chatId]);

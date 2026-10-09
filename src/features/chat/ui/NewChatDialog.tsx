@@ -11,6 +11,7 @@ import { COUNTRIES, withDialCode, type Country } from '@/shared/phone';
 import { Button } from '@/ui/Button';
 import { ChevronDownIcon } from '@/ui/icons';
 import { useStartChat } from '../hooks/useStartChat';
+import './NewChatDialog.css';
 
 export function NewChatDialog({ onClose }: { onClose: () => void }) {
   const { start, pending, error, resetError } = useStartChat();

@@ -1,0 +1,119 @@
+.message {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+
+.message--stack-above {
+  margin-top: 4px;
+}
+
+.message--in {
+  align-items: flex-start;
+  padding-right: 48px;
+}
+
+.message--out {
+  align-items: flex-end;
+  padding-left: 48px;
+}
+
+.bubble {
+  position: relative;
+  max-width: min(480px, 100%);
+  min-width: 72px;
+  padding: 8px 10px;
+  border-radius: var(--radius-l);
+}
+
+.message--in .bubble {
+  background: linear-gradient(239deg, var(--bubble-in-1) 0%, var(--bubble-in-2) 50%, var(--bubble-in-3) 100%);
+  color: var(--bubble-in-text);
+  --meta-color: var(--bubble-in-time);
+}
+
+.message--out .bubble {
+  background: linear-gradient(239deg, var(--bubble-out-1) 0%, var(--bubble-out-2) 50%, var(--bubble-out-3) 100%);
+  color: var(--bubble-out-text);
+  --meta-color: var(--bubble-out-time);
+}
+
+.message--failed .bubble {
+  box-shadow: inset 0 0 0 1.5px var(--negative);
+}
+
+.bubble__author {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--bubble-in-author);
+}
+
+.bubble__text {
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Невидимый «хвост» под время: текст обтекает его, как в MAX. */
+.bubble__text::after {
+  content: '';
+  display: inline-block;
+  width: var(--meta-width, 44px);
+  height: 12px;
+}
+
+.message--out .bubble__text::after {
+  --meta-width: 62px;
+}
+
+.bubble__text--muted {
+  font-style: italic;
+  opacity: 0.75;
+}
+
+.bubble__meta {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.3px;
+  color: var(--meta-color);
+  white-space: nowrap;
+}
+
+.bubble__meta .ticks {
+  color: var(--bubble-out-status);
+}
+
+.bubble__meta .ticks--failed {
+  color: var(--negative);
+}
+
+.message__error {
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--negative);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+@media (max-width: 760px) {
+  .message--in {
+    padding-right: 24px;
+  }
+
+  .message--out {
+    padding-left: 24px;
+  }
+}

@@ -1,53 +1,26 @@
 /**
- * Основной экран в раскладке веб-версии MAX: узкая навигационная колонка, список чатов
- * и окно переписки.
+ * Раздел «Чаты»: колонка со списком чатов и окно переписки. Обе колонки встают прямо
+ * в сетку каркаса (app/shell), поэтому компонент возвращает фрагмент.
  *
- * Экран владеет хранилищем чатов текущей сессии (создаёт его при монтировании), поэтому
- * выход из аккаунта автоматически очищает переписку. Подписка на события запускается
- * здесь же — один раз на экран.
- *
- * На узких экранах (до 760px) навигационная колонка скрывается, и показывается либо
- * список, либо открытый чат: режим задаёт атрибут data-view, а раскладку — CSS.
+ * Подписка на события и загрузка недавних чатов запускаются здесь — один раз на раздел.
+ * Хранилище создаёт каркас: раздел только читает и меняет его.
  */
 import { useState } from "react";
-import type { ConnectionState } from "@/domain/models";
 import { useSession } from "@/features/auth/SessionProvider";
-import { Alert } from "@/ui/Alert";
-import { Avatar } from "@/ui/Avatar";
 import { Button } from "@/ui/Button";
-import { ChatsIcon, LogoutIcon, PlusIcon } from "@/ui/icons";
+import { LogoutIcon, PlusIcon } from "@/ui/icons";
 import { useMessengerSync } from "../hooks/useMessengerSync";
 import { useRecentChats } from "../hooks/useRecentChats";
-import type { SyncIssue } from "../model/chatState";
-import {
-  ChatStoreContext,
-  createChatStore,
-  useChatActions,
-  useChatStore,
-} from "../model/chatStore";
+import { useChatStore } from "../model/chatStore";
 import { ChatList } from "./ChatList";
 import { ChatSearch } from "./ChatSearch";
 import { ChatWindow } from "./ChatWindow";
+import { ConnectionBanner } from "./ConnectionBanner";
 import { NewChatDialog } from "./NewChatDialog";
 import { StatusHint } from "./StatusHint";
+import "./ChatScreen.css";
 
 export function ChatScreen() {
-  const [store] = useState(() => createChatStore());
-  return (
-    <ChatStoreContext.Provider value={store}>
-      <ChatLayout />
-    </ChatStoreContext.Provider>
-  );
-}
-
-function useInstanceLabel(): string {
-  const { state } = useSession();
-  return state.status === "authenticated" && state.config.mode === "live"
-    ? `Инстанс ${state.config.credentials.instanceId}`
-    : "Демо-режим";
-}
-
-function ChatLayout() {
   const { state } = useSession();
   const { retry } = useMessengerSync();
   const { retry: retryRecent } = useRecentChats();
@@ -55,8 +28,7 @@ function ChatLayout() {
   const [query, setQuery] = useState("");
 
   return (
-    <div className="shell" data-view={activeChatId ? "chat" : "list"}>
-      <NavigationRail />
+    <>
       <aside className="sidebar" aria-label="Чаты">
         <SidebarHeader />
         <ConnectionBanner onRetry={retry} />
@@ -78,40 +50,7 @@ function ChatLayout() {
           </p>
         )}
       </main>
-    </div>
-  );
-}
-
-function NavigationRail() {
-  const { logout } = useSession();
-  const { selectChat } = useChatActions();
-  const label = useInstanceLabel();
-
-  return (
-    <nav className="rail" aria-label="Разделы">
-      <button
-        type="button"
-        className="rail__item rail__item--active"
-        aria-current="page"
-        onClick={() => selectChat(null)}
-      >
-        <ChatsIcon width={24} height={24} />
-        <span>Чаты</span>
-      </button>
-      <div className="rail__bottom">
-        <button type="button" className="rail__item" onClick={() => logout()}>
-          <LogoutIcon width={24} height={24} />
-          <span>Выйти</span>
-        </button>
-        <span className="rail__profile" title={label}>
-          <Avatar
-            seed={label}
-            name={label === "Демо-режим" ? "Демо" : label.replace(/\D/g, "")}
-            size="sm"
-          />
-        </span>
-      </div>
-    </nav>
+    </>
   );
 }
 
@@ -146,52 +85,4 @@ function SidebarHeader() {
       </Button>
     </header>
   );
-}
-
-const CONNECTION_WARNINGS: Partial<Record<ConnectionState, string>> = {
-  notAuthorized:
-    "Аккаунт MAX не авторизован в инстансе. Отсканируйте QR-код в личном кабинете GREEN-API.",
-  starting:
-    "Инстанс запускается — сообщения начнут приходить через пару минут.",
-  blocked: "Аккаунт MAX заблокирован.",
-  restricted:
-    "На аккаунте временные ограничения: отправка возможна только на номера из контактов.",
-};
-
-function ConnectionBanner({ onRetry }: { onRetry: () => void }) {
-  const connection = useChatStore((s) => s.connection);
-  const syncIssue = useChatStore((s) => s.syncIssue);
-  const warning = CONNECTION_WARNINGS[connection];
-
-  if (!warning && !syncIssue) return null;
-  return (
-    <div className="sidebar__banners">
-      {warning && <Alert tone="warning">{warning}</Alert>}
-      {syncIssue && <SyncIssueAlert issue={syncIssue} onRetry={onRetry} />}
-    </div>
-  );
-}
-
-function SyncIssueAlert({
-  issue,
-  onRetry,
-}: {
-  issue: SyncIssue;
-  onRetry: () => void;
-}) {
-  if (issue.fatal) {
-    return (
-      <Alert
-        tone="error"
-        action={
-          <Button variant="secondary" onClick={onRetry}>
-            Повторить
-          </Button>
-        }
-      >
-        {issue.message}
-      </Alert>
-    );
-  }
-  return <Alert tone="warning">{issue.message} Переподключаемся…</Alert>;
 }

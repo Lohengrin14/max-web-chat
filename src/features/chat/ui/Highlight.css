@@ -1,0 +1,6 @@
+/* Совпадение с запросом в результатах поиска — серая плашка, как в MAX. */
+.highlight {
+  border-radius: 3px;
+  background: var(--divider-strong);
+  color: inherit;
+}
