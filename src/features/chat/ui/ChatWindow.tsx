@@ -2,7 +2,12 @@
  * Окно открытого чата: шапка, лента сообщений и поле ввода.
  * Монтируется заново для каждого чата (key = chatId), поэтому черновик, автофокус и
  * прокрутка не «переезжают» между чатами.
+ *
+ * Поле ввода, как в MAX, «плавает» поверх ленты: сообщения прокручиваются под ним.
+ * Чтобы последнее сообщение не пряталось, лента получает отступ снизу высотой с поле
+ * ввода — высота меняется при многострочном вводе, поэтому её отслеживает ResizeObserver.
  */
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import type { ChatId } from '@/domain/models';
 import { formatPhone } from '@/shared/phone';
 import { Avatar } from '@/ui/Avatar';
@@ -20,6 +25,7 @@ export function ChatWindow({ chatId }: { chatId: ChatId }) {
   const { selectChat } = useChatActions();
   const { send, maxLength } = useSendMessage();
   const history = useChatHistory(chatId);
+  const { ref: composerRef, height: composerHeight } = useElementHeight<HTMLDivElement>();
 
   if (!chat) return null;
   const title = chatTitle(chat);
@@ -38,8 +44,30 @@ export function ChatWindow({ chatId }: { chatId: ChatId }) {
           <p className="chat__subtitle">{subtitle}</p>
         </div>
       </header>
-      <MessageList chatId={chatId} historyStatus={history.status} onRetryHistory={history.retry} />
-      <Composer onSend={(text) => void send(chatId, text)} maxLength={maxLength} />
+      <div className="chat__body" style={{ '--composer-height': `${composerHeight}px` } as CSSProperties}>
+        <MessageList chatId={chatId} historyStatus={history.status} onRetryHistory={history.retry} />
+        <div className="chat__composer" ref={composerRef}>
+          <Composer onSend={(text) => void send(chatId, text)} maxLength={maxLength} />
+        </div>
+      </div>
     </section>
   );
+}
+
+/** Текущая высота элемента; 0, пока элемент не измерен или ResizeObserver недоступен. */
+function useElementHeight<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [height, setHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    setHeight(el.offsetHeight);
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => setHeight(el.offsetHeight));
+    observer.observe(el);
+    return () => observer.disconnect();
+  });
+
+  return { ref, height };
 }

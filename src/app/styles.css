@@ -81,7 +81,6 @@
   --radius-s: 8px;
   --radius-m: 12px;
   --radius-l: 16px;
-  --radius-stack: 6px;
   --rail-width: 77px;
   --sidebar-width: 393px;
   /* Общая колонка ленты и поля ввода: правый край исходящих совпадает с краем поля ввода. */
@@ -952,6 +951,28 @@ textarea {
   flex-direction: column;
 }
 
+/* Лента на всю высоту, поле ввода — поверх неё у нижнего края. */
+.chat__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat__composer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Прозрачные поля вокруг карточки не должны перехватывать клики и прокрутку ленты. */
+  pointer-events: none;
+}
+
+.chat__composer .composer__card {
+  pointer-events: auto;
+}
+
 .chat__header {
   display: flex;
   align-items: center;
@@ -1001,7 +1022,8 @@ textarea {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 8px var(--chat-gutter);
+  /* Снизу — место под плавающее поле ввода: последнее сообщение видно над ним. */
+  padding: 8px var(--chat-gutter) calc(var(--composer-height, 76px) + 12px);
   /* Место под полосу прокрутки резервируется симметрично, чтобы колонка ленты
      оставалась на одной оси с полем ввода. */
   scrollbar-gutter: stable both-edges;
@@ -1059,7 +1081,7 @@ textarea {
 }
 
 .message--stack-above {
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .message--in {
@@ -1092,11 +1114,6 @@ textarea {
   --meta-color: var(--bubble-out-time);
 }
 
-/* Стопка: внутренние углы соседних пузырей одного автора скругляются меньше. */
-.message--in.message--stack-above .bubble { border-top-left-radius: var(--radius-stack); }
-.message--in.message--stack-below .bubble { border-bottom-left-radius: var(--radius-stack); }
-.message--out.message--stack-above .bubble { border-top-right-radius: var(--radius-stack); }
-.message--out.message--stack-below .bubble { border-bottom-right-radius: var(--radius-stack); }
 
 .message--failed .bubble {
   box-shadow: inset 0 0 0 1.5px var(--negative);
@@ -1114,7 +1131,7 @@ textarea {
 .bubble__text {
   font-size: 16px;
   line-height: 20px;
-  letter-spacing: 0;
+  letter-spacing: 0.25px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
