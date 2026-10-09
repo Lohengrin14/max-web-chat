@@ -20,8 +20,13 @@ import type {
 import { createSharedSubscription } from '../common/sharedSubscription';
 import { HttpClient, type FetchFn } from '../http/HttpClient';
 import { HttpPollingSource } from './HttpPollingSource';
-import { mapConnectionState, mapNotification } from './mappers';
-import { checkAccountResponseSchema, sendMessageResponseSchema, stateInstanceResponseSchema } from './schemas';
+import { mapConnectionState, mapNotification, mapSettingsWarnings } from './mappers';
+import {
+  checkAccountResponseSchema,
+  sendMessageResponseSchema,
+  settingsResponseSchema,
+  stateInstanceResponseSchema,
+} from './schemas';
 
 /** Лимит длины текста SendMessage по документации. */
 const MAX_TEXT_LENGTH = 4000;
@@ -38,6 +43,9 @@ export class GreenApiGateway implements MessengerGateway {
       source.start({
         onRaw: (raw) => {
           const event = mapNotification(raw);
+          // В режиме разработки видно, что пришло из очереди и во что превратилось:
+          // без этого «статус не обновился» невозможно отличить от «статус не пришёл».
+          if (import.meta.env.DEV) console.info('[GREEN-API] уведомление', { raw, event });
           if (event) broadcast.onEvent(event);
         },
         onIssue: broadcast.onIssue,
@@ -51,6 +59,13 @@ export class GreenApiGateway implements MessengerGateway {
     const parsed = stateInstanceResponseSchema.safeParse(raw);
     if (!parsed.success) throw new ApiError('Сервер вернул неожиданный ответ. Проверьте apiUrl.');
     return mapConnectionState(parsed.data.stateInstance);
+  }
+
+  async checkSetup(signal?: AbortSignal): Promise<string[]> {
+    const raw = await this.http.request({ httpMethod: 'GET', apiMethod: 'getSettings', signal });
+    const parsed = settingsResponseSchema.safeParse(raw);
+    // Неожиданный ответ — не повод пугать пользователя: просто нечего проверить.
+    return parsed.success ? mapSettingsWarnings(parsed.data) : [];
   }
 
   async findContactByPhone(phone: string): Promise<ContactLookupResult> {

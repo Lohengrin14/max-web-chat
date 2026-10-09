@@ -120,12 +120,18 @@ const CONNECTION_WARNINGS: Partial<Record<ConnectionState, string>> = {
 function ConnectionBanner({ onRetry }: { onRetry: () => void }) {
   const connection = useChatStore((s) => s.connection);
   const syncIssue = useChatStore((s) => s.syncIssue);
+  const setupWarnings = useChatStore((s) => s.setupWarnings);
   const warning = CONNECTION_WARNINGS[connection];
 
-  if (!warning && !syncIssue) return null;
+  if (!warning && !syncIssue && setupWarnings.length === 0) return null;
   return (
     <div className="sidebar__banners">
       {warning && <Alert tone="warning">{warning}</Alert>}
+      {setupWarnings.map((text) => (
+        <Alert key={text} tone="warning">
+          {text}
+        </Alert>
+      ))}
       {syncIssue && <SyncIssueAlert issue={syncIssue} onRetry={onRetry} />}
     </div>
   );

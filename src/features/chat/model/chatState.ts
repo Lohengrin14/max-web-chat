@@ -48,6 +48,8 @@ export interface ChatState {
   activeChatId: ChatId | null;
   connection: ConnectionState;
   syncIssue: SyncIssue | null;
+  /** Предупреждения о настройках аккаунта у провайдера (см. MessengerGateway.checkSetup). */
+  setupWarnings: string[];
 }
 
 /** Ограничение, чтобы статусы сообщений, отправленных не из этого окна, не копились бесконечно. */
@@ -61,6 +63,7 @@ export function createInitialChatState(): ChatState {
     activeChatId: null,
     connection: 'unknown',
     syncIssue: null,
+    setupWarnings: [],
   };
 }
 
@@ -143,6 +146,10 @@ export function failMessage(state: ChatState, input: { chatId: ChatId; tempId: s
 
 export function setSyncIssue(state: ChatState, issue: SyncIssue | null): ChatState {
   return { ...state, syncIssue: issue };
+}
+
+export function setSetupWarnings(state: ChatState, setupWarnings: string[]): ChatState {
+  return { ...state, setupWarnings };
 }
 
 export function setConnection(state: ChatState, connection: ConnectionState): ChatState {

@@ -37,6 +37,13 @@ export function useMessengerSync(): { retry: () => void } {
         });
     }
 
+    // Проверка настроек провайдера: выключенные уведомления о статусах — частая причина того,
+    // что сообщения «висят» на часах. Ошибку проверки не показываем: это лишь подсказка.
+    gateway
+      .checkSetup?.(controller.signal)
+      .then(actions.setSetupWarnings)
+      .catch(() => undefined);
+
     const unsubscribe = gateway.subscribe({
       onEvent: actions.applyEvent,
       onIssue: (error) => actions.setSyncIssue(error ? { message: errorMessage(error), fatal: false } : null),

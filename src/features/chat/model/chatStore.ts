@@ -19,6 +19,7 @@ import {
   openChat,
   selectChat,
   setConnection,
+  setSetupWarnings,
   setSyncIssue,
   type ChatState,
   type SyncIssue,
@@ -33,6 +34,7 @@ export interface ChatActions {
   fail(input: { chatId: ChatId; tempId: string; error: string }): void;
   setConnection(state: ConnectionState): void;
   setSyncIssue(issue: SyncIssue | null): void;
+  setSetupWarnings(warnings: string[]): void;
 }
 
 export type ChatStore = ChatState & { actions: ChatActions };
@@ -51,6 +53,7 @@ export function createChatStore(now: () => number = Date.now): StoreApi<ChatStor
         fail: (input) => update((s) => failMessage(s, input)),
         setConnection: (state) => update((s) => setConnection(s, state)),
         setSyncIssue: (issue) => update((s) => setSyncIssue(s, issue)),
+        setSetupWarnings: (warnings) => update((s) => setSetupWarnings(s, warnings)),
       },
     };
   });

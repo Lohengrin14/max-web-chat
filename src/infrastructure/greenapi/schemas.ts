@@ -41,13 +41,33 @@ export const receiveNotificationResponseSchema = z
   })
   .nullable();
 
+/**
+ * GetSettings — только поля, нужные для проверки, что инстанс отдаёт уведомления,
+ * без которых чат не работает. Значения настроек — строки "yes" / "no".
+ */
+export const settingsResponseSchema = z.object({
+  webhookUrl: z.string().optional(),
+  incomingWebhook: z.string().optional(),
+  outgoingWebhook: z.string().optional(),
+  outgoingAPIMessageWebhook: z.string().optional(),
+  outgoingMessageWebhook: z.string().optional(),
+});
+
+export type InstanceSettings = z.infer<typeof settingsResponseSchema>;
+
+/**
+ * Идентификаторы в документации — строки, но принимаем и числа: если провайдер где-то
+ * отдаст число, уведомление не должно молча теряться (статус так и не дошёл бы до сообщения).
+ */
+const idSchema = z.union([z.string().min(1), z.number()]).transform(String);
+
 /** Общая «шапка» любого уведомления — по ней выбирается конкретная схема. */
 export const notificationHeaderSchema = z.object({
   typeWebhook: z.string(),
 });
 
 const senderDataSchema = z.object({
-  chatId: z.string().min(1),
+  chatId: idSchema,
   sender: z.string().optional(),
   chatName: z.string().optional(),
   senderName: z.string().optional(),
@@ -65,8 +85,8 @@ const messageDataSchema = z.object({
 /** incomingMessageReceived / outgoingMessageReceived / outgoingAPIMessageReceived. */
 export const messageNotificationSchema = z.object({
   typeWebhook: z.enum(['incomingMessageReceived', 'outgoingMessageReceived', 'outgoingAPIMessageReceived']),
-  timestamp: z.number(),
-  idMessage: z.string().min(1),
+  timestamp: z.number().optional(),
+  idMessage: idSchema,
   senderData: senderDataSchema,
   messageData: messageDataSchema,
 });
@@ -74,9 +94,9 @@ export const messageNotificationSchema = z.object({
 /** outgoingMessageStatus. */
 export const statusNotificationSchema = z.object({
   typeWebhook: z.literal('outgoingMessageStatus'),
-  chatId: z.string().min(1),
-  timestamp: z.number(),
-  idMessage: z.string().min(1),
+  chatId: idSchema,
+  timestamp: z.number().optional(),
+  idMessage: idSchema,
   status: z.string(),
   description: z.string().optional(),
 });
