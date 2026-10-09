@@ -1,6 +1,10 @@
 /**
  * Лента сообщений с разделителями по дням.
  *
+ * Подряд идущие сообщения одного направления складываются в «стопку», как в MAX: у
+ * соседних пузырей внутренние углы скругляются меньше. Для этого каждому сообщению
+ * вычисляется, есть ли у него сосед сверху и снизу.
+ *
  * Автопрокрутка: к новому сообщению прокручиваем, только если пользователь и так был внизу
  * или сообщение отправил он сам, — чтобы входящее не выдёргивало из чтения истории.
  * role="log" сообщает скринридеру, что новые сообщения добавляются в конец.
@@ -14,6 +18,10 @@ import { formatDay, formatTime, isSameDay, unsupportedLabel } from './format';
 const EMPTY: Message[] = [];
 /** Насколько близко к низу (px) считается «пользователь внизу». */
 const STICK_THRESHOLD = 80;
+
+function sameStack(a: Message | undefined, b: Message | undefined): boolean {
+  return !!a && !!b && a.direction === b.direction && isSameDay(a.timestamp, b.timestamp);
+}
 
 export function MessageList({ chatId }: { chatId: ChatId }) {
   const messages = useChatStore((s) => s.messages[chatId] ?? EMPTY);
@@ -35,20 +43,23 @@ export function MessageList({ chatId }: { chatId: ChatId }) {
   return (
     <div className="messages" ref={scrollRef} onScroll={handleScroll} role="log" aria-live="polite" aria-label="Сообщения" tabIndex={0}>
       {messages.length === 0 ? (
-        <p className="messages__empty">Сообщений пока нет. Напишите первым!</p>
+        <div className="messages__empty">
+          <span className="capsule">Сообщений пока нет. Напишите первым!</span>
+        </div>
       ) : (
         <ol className="messages__list">
           {messages.map((message, i) => {
             const prev = messages[i - 1];
+            const next = messages[i + 1];
             const newDay = !prev || !isSameDay(prev.timestamp, message.timestamp);
             return (
               <Fragment key={message.id}>
                 {newDay && (
                   <li className="messages__day">
-                    <span>{formatDay(message.timestamp)}</span>
+                    <span className="capsule">{formatDay(message.timestamp)}</span>
                   </li>
                 )}
-                <MessageBubble message={message} grouped={!newDay && prev?.direction === message.direction} />
+                <MessageBubble message={message} stackedAbove={sameStack(prev, message)} stackedBelow={sameStack(message, next)} />
               </Fragment>
             );
           })}
@@ -58,27 +69,41 @@ export function MessageList({ chatId }: { chatId: ChatId }) {
   );
 }
 
-function MessageBubble({ message, grouped }: { message: Message; grouped: boolean }) {
+interface MessageBubbleProps {
+  message: Message;
+  stackedAbove: boolean;
+  stackedBelow: boolean;
+}
+
+function MessageBubble({ message, stackedAbove, stackedBelow }: MessageBubbleProps) {
   const outgoing = message.direction === 'outgoing';
-  const classes = ['bubble', outgoing ? 'bubble--out' : 'bubble--in', grouped ? 'bubble--grouped' : '', message.status === 'failed' ? 'bubble--failed' : '']
+  const classes = [
+    'message',
+    outgoing ? 'message--out' : 'message--in',
+    stackedAbove ? 'message--stack-above' : '',
+    stackedBelow ? 'message--stack-below' : '',
+    message.status === 'failed' ? 'message--failed' : '',
+  ]
     .filter(Boolean)
     .join(' ');
 
   return (
     <li className={classes}>
-      {message.senderName && !outgoing && <span className="bubble__author">{message.senderName}</span>}
-      {message.content.kind === 'text' ? (
-        <p className="bubble__text">{message.content.text}</p>
-      ) : (
-        <p className="bubble__text bubble__text--muted">
-          {unsupportedLabel(message.content.contentKind)} — этот тип сообщений пока не поддерживается
-        </p>
-      )}
-      <span className="bubble__meta">
-        <time dateTime={new Date(message.timestamp).toISOString()}>{formatTime(message.timestamp)}</time>
-        {outgoing && message.status && <StatusTicks status={message.status} error={message.error} />}
-      </span>
-      {message.status === 'failed' && message.error && <span className="bubble__error">{message.error}</span>}
+      <div className="bubble">
+        {message.senderName && !outgoing && !stackedAbove && <span className="bubble__author">{message.senderName}</span>}
+        {message.content.kind === 'text' ? (
+          <p className="bubble__text">{message.content.text}</p>
+        ) : (
+          <p className="bubble__text bubble__text--muted">
+            {unsupportedLabel(message.content.contentKind)} — этот тип сообщений пока не поддерживается
+          </p>
+        )}
+        <span className="bubble__meta">
+          <time dateTime={new Date(message.timestamp).toISOString()}>{formatTime(message.timestamp)}</time>
+          {outgoing && message.status && <StatusTicks status={message.status} error={message.error} />}
+        </span>
+      </div>
+      {message.status === 'failed' && message.error && <span className="message__error">{message.error}</span>}
     </li>
   );
 }

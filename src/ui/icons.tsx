@@ -88,3 +88,16 @@ export const ChatBubbleIcon = (p: IconProps) => (
     <path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4A8 8 0 1 1 20 12Z" />
   </Icon>
 );
+
+export const ChatsIcon = (p: IconProps) => (
+  <Icon strokeWidth="1.8" {...p}>
+    <path d="M12 3.5c4.97 0 9 3.58 9 8s-4.03 8-9 8c-1.13 0-2.2-.18-3.2-.52L4 20.5l1.33-3.98A7.5 7.5 0 0 1 3 11.5c0-4.42 4.03-8 9-8Z" />
+  </Icon>
+);
+
+export const SearchIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <circle cx="11" cy="11" r="6.5" />
+    <path d="m20 20-4.4-4.4" />
+  </Icon>
+);

@@ -64,11 +64,9 @@ export function LoginPage() {
     <main className="login">
       <div className="login__card">
         <header className="login__header">
-          <img src="/favicon.svg" alt="" width={44} height={44} />
-          <div>
-            <h1 className="login__title">MAX Web Chat</h1>
-            <p className="login__subtitle">Отправка и получение сообщений MAX через GREEN-API</p>
-          </div>
+          <img src="/favicon.svg" alt="" width={56} height={56} />
+          <h1 className="login__title">Войдите в MAX Web Chat</h1>
+          <p className="login__subtitle">Укажите параметры инстанса GREEN-API, чтобы отправлять и получать сообщения MAX</p>
         </header>
 
         {message && <Alert tone="error">{message}</Alert>}
@@ -115,12 +113,8 @@ export function LoginPage() {
           </Button>
         </form>
 
-        <div className="login__divider" role="presentation">
-          <span>или</span>
-        </div>
-
-        <Button variant="secondary" onClick={startDemo} disabled={loading}>
-          Демо-режим без GREEN-API
+        <Button variant="ghost" className="login__demo" onClick={startDemo} disabled={loading}>
+          Открыть демо-режим без GREEN-API
         </Button>
 
         <p className="login__note">

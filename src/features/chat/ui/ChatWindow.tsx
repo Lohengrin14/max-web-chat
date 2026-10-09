@@ -21,7 +21,7 @@ export function ChatWindow({ chatId }: { chatId: ChatId }) {
 
   if (!chat) return null;
   const title = chatTitle(chat);
-  const subtitle = chat.title && chat.phone ? formatPhone(chat.phone) : 'MAX';
+  const subtitle = chat.title && chat.phone ? formatPhone(chat.phone) : 'Чат в MAX';
 
   return (
     <section className="chat" aria-label={`Чат: ${title}`}>

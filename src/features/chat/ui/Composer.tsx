@@ -63,7 +63,8 @@ export function Composer({ onSend, maxLength }: ComposerProps) {
 
   return (
     <form className="composer" onSubmit={handleSubmit}>
-      <div className="composer__field">
+      {/* Плавающая карточка ввода поверх фона чата — как панель ввода в MAX. */}
+      <div className="composer__card">
         <label htmlFor="composer-input" className="visually-hidden">
           Сообщение
         </label>
@@ -84,10 +85,10 @@ export function Composer({ onSend, maxLength }: ComposerProps) {
             {length} / {maxLength}
           </span>
         )}
+        <Button type="submit" variant="icon" className="composer__send" disabled={!canSend} aria-label="Отправить" title="Отправить (Enter)">
+          <SendIcon />
+        </Button>
       </div>
-      <Button type="submit" variant="primary" className="composer__send" disabled={!canSend} aria-label="Отправить" title="Отправить (Enter)">
-        <SendIcon />
-      </Button>
     </form>
   );
 }

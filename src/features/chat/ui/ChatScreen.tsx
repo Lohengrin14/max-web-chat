@@ -1,22 +1,24 @@
 /**
- * Основной экран: сайдбар со списком чатов и окно переписки.
+ * Основной экран в раскладке веб-версии MAX: узкая навигационная колонка, список чатов
+ * и окно переписки.
  *
  * Экран владеет хранилищем чатов текущей сессии (создаёт его при монтировании), поэтому
  * выход из аккаунта автоматически очищает переписку. Подписка на события запускается
  * здесь же — один раз на экран.
  *
- * На узких экранах (до 760px) показывается либо список, либо открытый чат: режим задаёт
- * атрибут data-view, а раскладку — CSS.
+ * На узких экранах (до 760px) навигационная колонка скрывается, и показывается либо
+ * список, либо открытый чат: режим задаёт атрибут data-view, а раскладку — CSS.
  */
 import { useState } from 'react';
 import type { ConnectionState } from '@/domain/models';
 import { useSession } from '@/features/auth/SessionProvider';
 import { Alert } from '@/ui/Alert';
+import { Avatar } from '@/ui/Avatar';
 import { Button } from '@/ui/Button';
-import { ChatBubbleIcon, LogoutIcon } from '@/ui/icons';
+import { ChatBubbleIcon, ChatsIcon, LogoutIcon } from '@/ui/icons';
 import { useMessengerSync } from '../hooks/useMessengerSync';
 import type { SyncIssue } from '../model/chatState';
-import { ChatStoreContext, createChatStore, useChatStore } from '../model/chatStore';
+import { ChatStoreContext, createChatStore, useChatActions, useChatStore } from '../model/chatStore';
 import { ChatList } from './ChatList';
 import { ChatWindow } from './ChatWindow';
 import { NewChatForm } from './NewChatForm';
@@ -30,12 +32,20 @@ export function ChatScreen() {
   );
 }
 
+function useInstanceLabel(): string {
+  const { state } = useSession();
+  return state.status === 'authenticated' && state.config.mode === 'live'
+    ? `Инстанс ${state.config.credentials.instanceId}`
+    : 'Демо-режим';
+}
+
 function ChatLayout() {
   const { retry } = useMessengerSync();
   const activeChatId = useChatStore((s) => s.activeChatId);
 
   return (
     <div className="shell" data-view={activeChatId ? 'chat' : 'list'}>
+      <NavigationRail />
       <aside className="sidebar" aria-label="Чаты">
         <SidebarHeader />
         <ConnectionBanner onRetry={retry} />
@@ -47,8 +57,10 @@ function ChatLayout() {
           <ChatWindow key={activeChatId} chatId={activeChatId} />
         ) : (
           <div className="pane__empty">
-            <ChatBubbleIcon width={40} height={40} />
-            <p>Выберите чат слева или начните новый по номеру телефона</p>
+            <span className="capsule">
+              <ChatBubbleIcon width={16} height={16} />
+              Выберите чат или начните новый по номеру телефона
+            </span>
           </div>
         )}
       </main>
@@ -56,21 +68,42 @@ function ChatLayout() {
   );
 }
 
+function NavigationRail() {
+  const { logout } = useSession();
+  const { selectChat } = useChatActions();
+  const label = useInstanceLabel();
+
+  return (
+    <nav className="rail" aria-label="Разделы">
+      <button type="button" className="rail__item rail__item--active" aria-current="page" onClick={() => selectChat(null)}>
+        <ChatsIcon width={24} height={24} />
+        <span>Чаты</span>
+      </button>
+      <div className="rail__bottom">
+        <button type="button" className="rail__item" onClick={() => logout()}>
+          <LogoutIcon width={24} height={24} />
+          <span>Выйти</span>
+        </button>
+        <span className="rail__profile" title={label}>
+          <Avatar seed={label} name={label === 'Демо-режим' ? 'Демо' : label.replace(/\D/g, '')} size="sm" />
+        </span>
+      </div>
+    </nav>
+  );
+}
+
 function SidebarHeader() {
-  const { state, logout } = useSession();
-  const label =
-    state.status === 'authenticated' && state.config.mode === 'live'
-      ? `Инстанс ${state.config.credentials.instanceId}`
-      : 'Демо-режим';
+  const { logout } = useSession();
+  const label = useInstanceLabel();
 
   return (
     <header className="sidebar__header">
-      <img src="/favicon.svg" alt="" width={32} height={32} />
-      <div className="sidebar__title">
-        <span className="sidebar__app">MAX Web Chat</span>
+      <div className="sidebar__heading">
+        <h1 className="sidebar__title">Чаты</h1>
         <span className="sidebar__instance">{label}</span>
       </div>
-      <Button variant="icon" onClick={() => logout()} aria-label="Выйти" title="Выйти">
+      {/* На широком экране выход — в навигационной колонке, на узком — здесь. */}
+      <Button variant="icon" className="sidebar__logout" onClick={() => logout()} aria-label="Выйти" title="Выйти">
         <LogoutIcon />
       </Button>
     </header>
