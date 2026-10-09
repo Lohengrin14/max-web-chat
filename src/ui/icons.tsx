@@ -38,9 +38,11 @@ export const SendIcon = (p: IconProps) => (
   </Icon>
 );
 
+/** Стрелка влево — закрыть чат и вернуться к списку. */
 export const BackIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M15 18 9 12l6-6" />
+  <Icon strokeWidth="2.2" {...p}>
+    <path d="M19.5 12H5.5" />
+    <path d="M11.25 5.75 5 12l6.25 6.25" />
   </Icon>
 );
 
@@ -84,12 +86,6 @@ export const AlertIcon = (p: IconProps) => (
     <circle cx="8" cy="8" r="6.2" />
     <path d="M8 4.8v3.6" />
     <path d="M8 11.1v.1" />
-  </Icon>
-);
-
-export const ChatBubbleIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4A8 8 0 1 1 20 12Z" />
   </Icon>
 );
 

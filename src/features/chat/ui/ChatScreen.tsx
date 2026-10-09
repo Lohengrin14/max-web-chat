@@ -15,7 +15,7 @@ import { useSession } from '@/features/auth/SessionProvider';
 import { Alert } from '@/ui/Alert';
 import { Avatar } from '@/ui/Avatar';
 import { Button } from '@/ui/Button';
-import { ChatBubbleIcon, ChatsIcon, LogoutIcon } from '@/ui/icons';
+import { ChatsIcon, LogoutIcon } from '@/ui/icons';
 import { useMessengerSync } from '../hooks/useMessengerSync';
 import { useRecentChats } from '../hooks/useRecentChats';
 import type { SyncIssue } from '../model/chatState';
@@ -64,12 +64,8 @@ function ChatLayout() {
         {activeChatId ? (
           <ChatWindow key={activeChatId} chatId={activeChatId} />
         ) : (
-          <div className="pane__empty">
-            <span className="capsule">
-              <ChatBubbleIcon width={16} height={16} />
-              Выберите чат или начните новый по номеру телефона
-            </span>
-          </div>
+          // Как в MAX: без открытого чата справа только фон. Текст — для скринридеров.
+          <p className="visually-hidden">Чат не выбран. Выберите чат в списке или начните новый по номеру телефона.</p>
         )}
       </main>
     </div>

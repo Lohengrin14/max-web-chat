@@ -28,7 +28,8 @@ export function ChatWindow({ chatId }: { chatId: ChatId }) {
   return (
     <section className="chat" aria-label={`Чат: ${title}`}>
       <header className="chat__header">
-        <Button variant="icon" className="chat__back" onClick={() => selectChat(null)} aria-label="Назад к списку чатов">
+        {/* Закрывает чат: на широком экране справа остаётся пустой фон, на узком — снова список. */}
+        <Button variant="icon" className="chat__back" onClick={() => selectChat(null)} aria-label="Закрыть чат" title="Закрыть чат">
           <BackIcon />
         </Button>
         <Avatar seed={chat.id} name={title} size="lg" />

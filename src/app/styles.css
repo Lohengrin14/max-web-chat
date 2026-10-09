@@ -944,12 +944,6 @@ textarea {
   pointer-events: none;
 }
 
-.pane__empty {
-  margin: auto;
-  padding: 24px;
-  text-align: center;
-}
-
 .chat {
   flex: 1;
   min-width: 0;
@@ -968,8 +962,12 @@ textarea {
 }
 
 .chat__back {
-  display: none;
   margin-left: -8px;
+  color: var(--icon-tertiary);
+}
+
+.btn.chat__back:hover:not(:disabled) {
+  color: var(--icon-secondary);
 }
 
 .chat__heading {
@@ -1296,10 +1294,6 @@ textarea {
   .shell[data-view='chat'] .sidebar,
   .shell[data-view='list'] .pane {
     display: none;
-  }
-
-  .chat__back {
-    display: inline-flex;
   }
 
   .chat__header {
