@@ -924,6 +924,9 @@ textarea {
   min-height: 0;
   overflow-y: auto;
   padding: 8px 16px;
+  /* Лента растёт снизу вверх, как в MAX: сообщения прижаты к полю ввода. */
+  display: flex;
+  flex-direction: column;
 }
 
 .messages:focus-visible {
@@ -931,15 +934,16 @@ textarea {
 }
 
 .messages__empty {
-  display: grid;
-  place-items: center;
-  height: 100%;
+  margin: auto;
 }
 
 .messages__list {
   list-style: none;
-  margin: 0 auto;
+  /* margin-top: auto прижимает короткую ленту к низу; длинная прокручивается как обычно.
+     justify-content: flex-end здесь не подходит — он ломает прокрутку к началу истории. */
+  margin: auto auto 0;
   padding: 0;
+  width: 100%;
   max-width: 791px;
   display: flex;
   flex-direction: column;
