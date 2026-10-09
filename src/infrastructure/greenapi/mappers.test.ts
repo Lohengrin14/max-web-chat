@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
-import { mapConnectionState, mapNotification, mapSettingsWarnings } from './mappers';
+import { describe, expect, it } from 'vitest';
+import { mapConnectionState, mapNotification } from './mappers';
 
 // Примеры уведомлений — из документации GREEN-API v3 (MAX).
 const instanceData = { idInstance: 3100000000, wid: '79991234567@c.us', typeInstance: 'v3' };
@@ -138,27 +138,11 @@ describe('mapNotification', () => {
     ).toEqual({ type: 'connection', state: 'notAuthorized' });
   });
 
-  it('принимает числовые id и уведомления без timestamp, чтобы статус не терялся', () => {
-    const { timestamp: _omit, ...withoutTimestamp } = statusBase;
-    expect(mapNotification({ ...withoutTimestamp, chatId: 10000000, idMessage: '115054445839974415', status: 'read' })).toEqual({
-      type: 'status',
-      chatId: '10000000',
-      messageId: '115054445839974415',
-      status: 'read',
-    });
-    expect(mapNotification({ ...incomingText, idMessage: 42 })).toMatchObject({ message: { id: '42' } });
-  });
-
-  it('игнорирует неизвестные типы и битые уведомления, сообщая о битых в консоль', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  it('игнорирует неизвестные типы и битые уведомления', () => {
     expect(mapNotification({ typeWebhook: 'quotaExceeded', instanceData, timestamp: 1 })).toBeNull();
     expect(mapNotification({ ...statusBase, status: 'somethingNew' })).toBeNull();
-    expect(warn).not.toHaveBeenCalled();
-
     expect(mapNotification({ ...incomingText, senderData: undefined })).toBeNull();
-    expect(mapNotification({ ...incomingText, idMessage: { bad: true } })).toBeNull();
-    expect(mapNotification({ ...statusBase, idMessage: '' })).toBeNull();
-    expect(warn).toHaveBeenCalledTimes(3);
+    expect(mapNotification({ ...incomingText, idMessage: 42 })).toBeNull();
     expect(mapNotification(null)).toBeNull();
     expect(mapNotification('garbage')).toBeNull();
   });
@@ -173,38 +157,5 @@ describe('mapConnectionState', () => {
     expect(mapConnectionState('starting')).toBe('starting');
     expect(mapConnectionState('suspended')).toBe('restricted');
     expect(mapConnectionState('whatever')).toBe('unknown');
-  });
-});
-
-describe('mapSettingsWarnings', () => {
-  const allOn = {
-    webhookUrl: '',
-    incomingWebhook: 'yes',
-    outgoingWebhook: 'yes',
-    outgoingAPIMessageWebhook: 'yes',
-    outgoingMessageWebhook: 'yes',
-  };
-
-  it('нет предупреждений, когда всё включено', () => {
-    expect(mapSettingsWarnings(allOn)).toEqual([]);
-  });
-
-  it('сообщает о выключенных уведомлениях о статусах одной строкой', () => {
-    const warnings = mapSettingsWarnings({ ...allOn, outgoingAPIMessageWebhook: 'no', outgoingWebhook: 'no' });
-    expect(warnings).toHaveLength(1);
-    expect(warnings[0]).toContain('«о сообщениях, отправленных через API»');
-    expect(warnings[0]).toContain('«о статусах отправленных сообщений»');
-    expect(warnings[0]).not.toContain('с телефона');
-  });
-
-  it('сообщает о webhookUrl и выключенных входящих', () => {
-    const warnings = mapSettingsWarnings({ ...allOn, webhookUrl: 'https://example.com/hook', incomingWebhook: 'no' });
-    expect(warnings).toHaveLength(2);
-    expect(warnings[0]).toContain('webhookUrl');
-    expect(warnings[1]).toContain('входящих');
-  });
-
-  it('не ругается на поля, которых нет в ответе', () => {
-    expect(mapSettingsWarnings({})).toEqual([]);
   });
 });

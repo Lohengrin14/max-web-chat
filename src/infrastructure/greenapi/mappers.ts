@@ -22,7 +22,6 @@ import {
   notificationHeaderSchema,
   stateNotificationSchema,
   statusNotificationSchema,
-  type InstanceSettings,
   type MessageNotification,
   type StatusNotification,
 } from './schemas';
@@ -36,61 +35,20 @@ export function mapNotification(body: unknown): MessengerEvent | null {
     case 'outgoingMessageReceived':
     case 'outgoingAPIMessageReceived': {
       const parsed = messageNotificationSchema.safeParse(body);
-      if (!parsed.success) return rejected(body, parsed.error.issues);
-      return mapMessage(parsed.data);
+      return parsed.success ? mapMessage(parsed.data) : null;
     }
     case 'outgoingMessageStatus': {
       const parsed = statusNotificationSchema.safeParse(body);
-      if (!parsed.success) return rejected(body, parsed.error.issues);
-      return mapStatus(parsed.data);
+      return parsed.success ? mapStatus(parsed.data) : null;
     }
     case 'stateInstanceChanged': {
       const parsed = stateNotificationSchema.safeParse(body);
-      if (!parsed.success) return rejected(body, parsed.error.issues);
-      return { type: 'connection', state: mapConnectionState(parsed.data.stateInstance) };
+      return parsed.success ? { type: 'connection', state: mapConnectionState(parsed.data.stateInstance) } : null;
     }
     default:
       // quotaExceeded и будущие типы нам не нужны — их подтвердят удалением.
       return null;
   }
-}
-
-/**
- * Нужный нам тип уведомления не прошёл схему. Очередь из-за этого не останавливаем, но и
- * молча не теряем: иначе, например, статус «доставлено» исчезал бы без следа, а сообщение
- * навсегда оставалось бы на часах.
- */
-function rejected(body: unknown, issues: unknown): null {
-  console.warn('[GREEN-API] Уведомление не прошло проверку формата и пропущено', { issues, body });
-  return null;
-}
-
-/**
- * Проверка настроек инстанса (GetSettings). Возвращает понятные предупреждения о том,
- * без чего чат работает неполноценно. Для статусов документация MAX требует включить
- * сразу три настройки: outgoingWebhook, outgoingAPIMessageWebhook и outgoingMessageWebhook.
- */
-export function mapSettingsWarnings(settings: InstanceSettings): string[] {
-  const warnings: string[] = [];
-  if (settings.webhookUrl?.trim()) {
-    warnings.push('У инстанса задан webhookUrl — через HTTP API уведомления не приходят. Очистите поле в личном кабинете GREEN-API.');
-  }
-  const off = (value: string | undefined) => value !== undefined && value !== 'yes';
-  if (off(settings.incomingWebhook)) {
-    warnings.push('Выключены уведомления о входящих сообщениях — ответы не будут появляться в чате.');
-  }
-  const statusSettings: [keyof InstanceSettings, string][] = [
-    ['outgoingAPIMessageWebhook', '«о сообщениях, отправленных через API»'],
-    ['outgoingWebhook', '«о статусах отправленных сообщений»'],
-    ['outgoingMessageWebhook', '«о сообщениях, отправленных с телефона»'],
-  ];
-  const disabled = statusSettings.filter(([key]) => off(settings[key])).map(([, label]) => label);
-  if (disabled.length > 0) {
-    warnings.push(
-      `Выключены уведомления ${disabled.join(', ')} — статусы «отправлено», «доставлено» и «прочитано» не будут обновляться. Включите их в настройках инстанса в личном кабинете GREEN-API.`,
-    );
-  }
-  return warnings;
 }
 
 /** Состояния GetStateInstance / stateInstanceChanged → доменное состояние подключения. */
@@ -140,7 +98,7 @@ function mapMessage(n: MessageNotification): MessengerEvent {
       chatId,
       direction: incoming ? 'incoming' : 'outgoing',
       content: mapContent(n.messageData),
-      timestamp: n.timestamp !== undefined ? n.timestamp * 1000 : Date.now(),
+      timestamp: n.timestamp * 1000,
       // Эхо исходящего — подтверждение, что сообщение ушло с аккаунта.
       ...(incoming ? {} : { status: 'sent' as const }),
       ...(incoming && group ? { senderName: nonEmpty(senderData.senderContactName) ?? nonEmpty(senderData.senderName) } : {}),
