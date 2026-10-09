@@ -1223,14 +1223,43 @@ textarea {
   font-weight: 500;
 }
 
-.composer__send {
+/* Кнопка отправки в стиле MAX: синий круг с белой стрелкой, появляется вместе с текстом. */
+.btn.composer__send {
+  flex: none;
+  width: 40px;
+  min-height: 40px;
   margin-bottom: 6px;
-  color: var(--themed);
+  border-radius: 50%;
+  background: var(--themed);
+  color: #fff;
+  cursor: pointer;
+  animation: composer-send-in 0.15s ease-out;
 }
 
-.composer__send:disabled {
-  color: var(--icon-tertiary);
-  opacity: 1;
+.btn.composer__send:hover:not(:disabled) {
+  background: var(--themed-hover);
+}
+
+.btn.composer__send:active:not(:disabled) {
+  background: var(--themed-pressed);
+}
+
+.btn.composer__send:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+@keyframes composer-send-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn.composer__send {
+    animation: none;
+  }
 }
 
 /* ——— Узкие экраны: либо список, либо чат ——— */

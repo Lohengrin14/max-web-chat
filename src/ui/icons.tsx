@@ -27,10 +27,11 @@ function Icon({ children, ...props }: IconProps) {
   );
 }
 
+/** Стрелка вверх — кнопка отправки, как в MAX. */
 export const SendIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M4.5 12h11" />
-    <path d="M3.4 4.6 20.5 12 3.4 19.4a.6.6 0 0 1-.8-.75L5 12 2.6 5.35a.6.6 0 0 1 .8-.75Z" />
+  <Icon strokeWidth="2.4" {...p}>
+    <path d="M12 19V5.5" />
+    <path d="M5.75 11.5 12 5.25l6.25 6.25" />
   </Icon>
 );
 

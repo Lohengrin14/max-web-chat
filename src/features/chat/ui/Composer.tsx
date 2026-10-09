@@ -26,7 +26,8 @@ export function Composer({ onSend, maxLength }: ComposerProps) {
 
   const length = text.length;
   const tooLong = length > maxLength;
-  const canSend = text.trim().length > 0 && !tooLong;
+  const hasText = text.trim().length > 0;
+  const canSend = hasText && !tooLong;
   const showCounter = length >= maxLength * COUNTER_THRESHOLD;
 
   // Автофокус при открытии чата — только на устройствах с мышью, чтобы на телефоне
@@ -46,6 +47,9 @@ export function Composer({ onSend, maxLength }: ComposerProps) {
     if (!canSend) return;
     onSend(text);
     setText('');
+    // Кнопка исчезает вместе с текстом; если отправляли кликом, фокус вернётся в поле,
+    // чтобы можно было сразу печатать дальше.
+    ref.current?.focus();
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -85,9 +89,13 @@ export function Composer({ onSend, maxLength }: ComposerProps) {
             {length} / {maxLength}
           </span>
         )}
-        <Button type="submit" variant="icon" className="composer__send" disabled={!canSend} aria-label="Отправить" title="Отправить (Enter)">
-          <SendIcon />
-        </Button>
+        {/* Как в MAX: в пустом поле кнопки нет, она появляется, когда есть что отправить.
+            При превышении лимита остаётся видимой, но неактивной — рядом счётчик объясняет почему. */}
+        {hasText && (
+          <Button type="submit" variant="icon" className="composer__send" disabled={!canSend} aria-label="Отправить" title="Отправить (Enter)">
+            <SendIcon width={22} height={22} />
+          </Button>
+        )}
       </div>
     </form>
   );
