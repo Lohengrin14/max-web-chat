@@ -85,7 +85,8 @@
   --sidebar-width: 393px;
   /* Общая колонка ленты и поля ввода: правый край исходящих совпадает с краем поля ввода. */
   --chat-column: 760px;
-  --chat-gutter: 16px;
+  /* 24px — отступ панели ввода от краёв области чата, как в MAX; лента выровнена по нему. */
+  --chat-gutter: 24px;
 
   /* Собственный узор фона чата: маска, окрашиваемая через --chat-pattern. */
   --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='22' cy='24' r='6'/%3E%3Cpath d='M96 12l3.4 7.6 8.3.9-6.2 5.6 1.8 8.2-7.3-4.2-7.3 4.2 1.8-8.2-6.2-5.6 8.3-.9z' transform='rotate(14 96 22)'/%3E%3Cg transform='rotate(-24 150 44)'%3E%3Cellipse cx='150' cy='44' rx='14' ry='4.5'/%3E%3Ccircle cx='150' cy='44' r='7.5'/%3E%3C/g%3E%3Cpath d='M48 78a12 12 0 1 0 12 15 9.5 9.5 0 1 1-12-15z'/%3E%3Cpath d='M118 86v10M113 91h10'/%3E%3Ccircle cx='82' cy='132' r='2.4'/%3E%3Cg transform='rotate(-35 26 142)'%3E%3Cpath d='M16 142h18l-6-6M34 142l-6 6'/%3E%3C/g%3E%3Crect x='132' y='122' width='20' height='14' rx='4.5' transform='rotate(12 142 129)'/%3E%3Ccircle cx='168' cy='96' r='2'/%3E%3Ccircle cx='58' cy='170' r='2'/%3E%3Cpath d='M104 166c5-7 12-7 17 0' /%3E%3Cpath d='M164 160l3 5 5 1-4 3 1 5-5-3-5 3 1-5-4-3 5-1z'/%3E%3C/svg%3E");
@@ -1200,8 +1201,9 @@ textarea {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  /* Симметрично: кнопка отправки отстоит от правого края так же, как текст — от левого. */
-  padding: 0 16px;
+  /* Симметрично: кнопка отправки отстоит от правого края так же, как текст — от левого.
+     Компактно, как в MAX: поле 48px, кнопка 36px. */
+  padding: 0 12px;
   border-radius: var(--radius-l);
   background: var(--float);
   box-shadow: var(--shadow-float);
@@ -1211,9 +1213,9 @@ textarea {
   flex: 1;
   min-width: 0;
   display: block;
-  min-height: 52px;
+  min-height: 48px;
   max-height: 180px;
-  padding: 16px 0;
+  padding: 14px 0;
   border: 0;
   outline: none;
   background: transparent;
@@ -1248,8 +1250,8 @@ textarea {
 /* Кнопка отправки в стиле MAX: синий круг с белой стрелкой, появляется вместе с текстом. */
 .btn.composer__send {
   flex: none;
-  width: 40px;
-  min-height: 40px;
+  width: 36px;
+  min-height: 36px;
   margin-bottom: 6px;
   border-radius: 50%;
   background: var(--themed);
